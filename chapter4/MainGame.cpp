@@ -32,7 +32,7 @@ void MainGame::DrawScene()
     assert(md3dImmediateContext);
     assert(mSwapChain);
 
-    const float customColor[4] = { 0.2f, 0.4f, 0.6f, 1.0f };
+    const float customColor[4] = { 0.1f, 0.2f, 0.3f, 1.0f };
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, customColor);
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 

@@ -1,4 +1,5 @@
 #include <windowsx.h>
+#include <vector>
 #include "D3DApp.h"
 
 namespace
@@ -386,7 +387,7 @@ bool D3DApp::InitDirect3D()
 
 	IDXGIFactory* dxgiFactory = 0;
 	HR(dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory));
-	
+
 	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
 	HR(dxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_WINDOW_CHANGES));
 
