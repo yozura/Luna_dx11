@@ -1,5 +1,5 @@
-#ifndef GAMETIMER_H
-#define GAMETIMER_H
+#ifndef GAME_TIMER_H
+#define GAME_TIMER_H
 
 class GameTimer
 {
@@ -27,4 +27,4 @@ private:
 	bool mStopped;
 };
 
-#endif /* GAMETIMER_H */
+#endif /* GAME_TIMER_H */

@@ -1,5 +1,5 @@
-#ifndef D3DApp_H
-#define D3DApp_H
+#ifndef D3D_App_H
+#define D3D_App_H
 
 #include "D3DUtil.h"
 #include "GameTimer.h"
@@ -60,5 +60,5 @@ protected:
 	
 };
 
-#endif /* D3DAPP_H */
+#endif /* D3D_APP_H */
 
