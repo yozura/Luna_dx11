@@ -4,11 +4,11 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 
 ## Contents.
 
-- [chapter4. Direct3D Initialization](chapter4/)
-- [chapter6. Drawings in Direct3D](chapter6/)
+- [Chapter4. Direct3D Initialization](chapter4/)
+- [Chapter6. Drawings in Direct3D](chapter6/)
+![chpater6-box.png](resources/box.PNG)
 
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
-The `Effects11.lib` library provided in the book is  built for Visual Studio 2010 and is no longer supported in later versions.  
-If you want to use `Effects11.lib` with a higher version of Visual Studio, try building it from [this repository](https://github.com/microsoft/FX11). I also use Visual Studio 2022, and it has been extremely helpful.
+The `Effects11.lib` library provided in the book is  built for Visual Studio 2010 and is no longer supported in later versions. If you want to use `Effects11.lib` with a higher version of Visual Studio, try building it from [this repository](https://github.com/microsoft/FX11). I also use Visual Studio 2022, and it has been extremely helpful.
