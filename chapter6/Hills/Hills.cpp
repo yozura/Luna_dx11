@@ -221,42 +221,16 @@ void Hills::BuildGeometryBuffers()
 
 void Hills::BuildFX()
 {
-    DWORD shaderFlags = 0;
-#if defined( DEBUG ) || defined( _DEBUG )
-    shaderFlags |= D3D10_SHADER_DEBUG;
-    shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-#endif
+    std::ifstream fin("shaders/color.cso", std::ios::binary);
 
-    ID3D10Blob* compiledShader = 0;
-    ID3D10Blob* compilationMsgs = 0;
-    HRESULT hr = D3DCompileFromFile(
-        L"fx/color.fx",
-        nullptr,
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,
-        "fx_5_0",
-        "fx_5_0",
-        shaderFlags,
-        0,
-        &compiledShader,
-        &compilationMsgs
-    );
+    fin.seekg(0, std::ios_base::end);
+    int size = (int)fin.tellg();
+    fin.seekg(0, std::ios_base::beg);
+    std::vector<char> compiledShader(size);
+    fin.read(&compiledShader[0], size);
+    fin.close();
 
-    if (compilationMsgs != 0)
-    {
-        MessageBoxA(0, (char*)compilationMsgs->GetBufferPointer(), 0, 0);
-        ReleaseCOM(compilationMsgs);
-    }
-
-    if (FAILED(hr))
-    {
-        LPWSTR output;
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&output, 0, NULL);
-        MessageBox(NULL, output, TEXT("Error: D3DCompileFromFile"), MB_OK);
-    }
-
-    HR(D3DX11CreateEffectFromMemory(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(), 0, md3dDevice, &mFX));
-    ReleaseCOM(compiledShader);
+    HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, md3dDevice, &mFX));
 
     mTech = mFX->GetTechniqueByName("ColorTech");
     mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
