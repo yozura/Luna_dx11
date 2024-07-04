@@ -50,6 +50,8 @@ protected:
 	ID3D11Texture2D*	    mDepthStencilBuffer;
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;
+	ID3D11RasterizerState*	mSolidRS;
+	ID3D11RasterizerState*	mWireFrameRS;
 	D3D11_VIEWPORT			mScreenViewport;
 
 	std::wstring	mMainWndCaption;
@@ -57,7 +59,7 @@ protected:
 	int				mClientWidth;
 	int				mClientHeight;
 	bool			mEnable4xMsaa;
-	
+
 };
 
 #endif /* D3D_APP_H */

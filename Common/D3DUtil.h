@@ -9,8 +9,10 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include "d3dx11effect.h"
+#include "MathHelper.h"
 
 // HRESULT 에러 핸들러
 #if defined(DEBUG) | defined(_DEBUG)

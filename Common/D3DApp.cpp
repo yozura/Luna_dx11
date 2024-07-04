@@ -18,7 +18,7 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	md3dDriverType(D3D_DRIVER_TYPE_HARDWARE),
 	mClientWidth(1280),
 	mClientHeight(720),
-	mEnable4xMsaa(false),
+	mEnable4xMsaa(true),
 	mhMainWnd(0),
 	mAppPaused(false),
 	mMinimized(false),
@@ -31,7 +31,9 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mSwapChain(0),
 	mDepthStencilBuffer(0),
 	mRenderTargetView(0),
-	mDepthStencilView(0)
+	mDepthStencilView(0),
+	mSolidRS(0),
+	mWireFrameRS(0)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 
@@ -390,6 +392,25 @@ bool D3DApp::InitDirect3D()
 
 	HR(dxgiFactory->CreateSwapChain(md3dDevice, &sd, &mSwapChain));
 	HR(dxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_WINDOW_CHANGES));
+
+	// Set WireframeRS
+	D3D11_RASTERIZER_DESC rsDesc;
+	ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rsDesc.CullMode = D3D11_CULL_BACK;
+	rsDesc.FrontCounterClockwise = false;
+	rsDesc.DepthClipEnable = true;
+
+	HR(md3dDevice->CreateRasterizerState(&rsDesc, &mWireFrameRS));
+
+	// Set SolidRS
+	ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rsDesc.FillMode = D3D11_FILL_SOLID;
+	rsDesc.CullMode = D3D11_CULL_BACK;
+	rsDesc.FrontCounterClockwise = false;
+	rsDesc.DepthClipEnable = true;
+
+	HR(md3dDevice->CreateRasterizerState(&rsDesc, &mSolidRS));
 
 	ReleaseCOM(dxgiDevice);
 	ReleaseCOM(dxgiAdapter);
