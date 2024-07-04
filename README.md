@@ -7,12 +7,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter4. Direct3D Initialization](chapter4/)__
 
 > __[Chapter6. Drawings in Direct3D](chapter6/)__  
-<<<<<<< Updated upstream
-![chpater6-box.png](resources/box.PNG)
-=======
 ![chapter6-box.png](resources/chapter6/box.PNG)
 ![chapter6-hills.png](resources/chapter6/hills.PNG)
->>>>>>> Stashed changes
 
 ## Diffrence from a book.
 
