@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d71253b4-7aa3-496a-84d0-4f3d3301bb8b}</ProjectGuid>
-    <RootNamespace>Hills</RootNamespace>
+    <ProjectGuid>{0ffd8c5e-e4f9-4b4a-bb0a-b41fb5031c24}</ProjectGuid>
+    <RootNamespace>Shapes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -78,14 +78,6 @@
     <IncludePath>..\..\common;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\common;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\..\common;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\common;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..\..\common;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\common;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -100,8 +92,7 @@
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)shaders"
-xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
-</Command>
+xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,8 +113,7 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)shaders"
-xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
-</Command>
+xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,9 +124,8 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;Effects11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,11 +138,10 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;Effects11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -162,8 +150,17 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
     <ClCompile Include="..\..\common\GameTimer.cpp" />
     <ClCompile Include="..\..\common\GeometryGenerator.cpp" />
     <ClCompile Include="..\..\common\MathHelper.cpp" />
-    <ClCompile Include="Hills.cpp" />
+    <FxCompile Include="color.fx">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\D3DApp.h" />
@@ -172,21 +169,7 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"
     <ClInclude Include="..\..\common\GameTimer.h" />
     <ClInclude Include="..\..\common\GeometryGenerator.h" />
     <ClInclude Include="..\..\common\MathHelper.h" />
-    <ClInclude Include="Hills.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="fx\color.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
+    <ClInclude Include="Shapes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
