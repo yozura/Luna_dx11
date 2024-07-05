@@ -9,6 +9,7 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter6. Drawings in Direct3D](chapter6/)__  
 ![chapter6-box.png](resources/chapter6/box.PNG)
 ![chapter6-hills.png](resources/chapter6/hills.PNG)
+![chapter6-shape.png](resources/chapter6/shapes.PNG)
 
 ## Diffrence from a book.
 
