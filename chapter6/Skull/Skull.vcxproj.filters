@@ -14,10 +14,10 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="common">
-      <UniqueIdentifier>{4f3aa8ab-fa18-41c0-b281-fdd32e0419a7}</UniqueIdentifier>
+      <UniqueIdentifier>{49a84748-1033-40a0-8a2b-2462801e7234}</UniqueIdentifier>
     </Filter>
     <Filter Include="shaders">
-      <UniqueIdentifier>{95b224c0-4c2e-4738-82d0-d65fb373c811}</UniqueIdentifier>
+      <UniqueIdentifier>{05ea072a-58b6-4164-b8a4-baba4f5ae049}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,10 +36,10 @@
     <ClCompile Include="..\..\common\MathHelper.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="Skull.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Hills.cpp">
+    <ClCompile Include="Main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClInclude Include="..\..\common\MathHelper.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="Hills.h">
+    <ClInclude Include="Skull.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

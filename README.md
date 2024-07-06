@@ -6,10 +6,12 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 
 > __[Chapter4. Direct3D Initialization](chapter4/)__
 
-> __[Chapter6. Drawings in Direct3D](chapter6/)__  
+> __[Chapter6. Drawings in Direct3D](chapter6/)__<details><summary>Sample Pictures</summary>
 ![chapter6-box.png](resources/chapter6/box.PNG)
 ![chapter6-hills.png](resources/chapter6/hills.PNG)
 ![chapter6-shape.png](resources/chapter6/shapes.PNG)
+![chapter6-skull.png](resources/chapter6/skull.PNG)
+</details>
 
 ## Diffrence from a book.
 
