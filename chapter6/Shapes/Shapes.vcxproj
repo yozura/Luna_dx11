@@ -150,15 +150,6 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     <ClCompile Include="..\..\common\GameTimer.cpp" />
     <ClCompile Include="..\..\common\GeometryGenerator.cpp" />
     <ClCompile Include="..\..\common\MathHelper.cpp" />
-    <FxCompile Include="color.fx">
-      <FileType>Document</FileType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Shapes.cpp" />
   </ItemGroup>
@@ -170,6 +161,16 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     <ClInclude Include="..\..\common\GeometryGenerator.h" />
     <ClInclude Include="..\..\common\MathHelper.h" />
     <ClInclude Include="Shapes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\color.fx">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

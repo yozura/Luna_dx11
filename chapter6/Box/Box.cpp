@@ -223,7 +223,7 @@ void Box::BuildFX()
     ID3D10Blob* compiledShader = 0;
     ID3D10Blob* compilationMsgs = 0;
     HRESULT hr = D3DCompileFromFile(
-        L"fx/color.fx",
+        L"shaders/color.fx",
         nullptr,
         D3D_COMPILE_STANDARD_FILE_INCLUDE,
         "fx_5_0",

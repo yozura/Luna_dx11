@@ -16,7 +16,7 @@
     <Filter Include="common">
       <UniqueIdentifier>{f4d339bf-67c4-423f-983b-7bc8c0ae94b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="fx">
+    <Filter Include="shaders">
       <UniqueIdentifier>{63252e14-fd15-4d36-bc9c-bcdddf6aa638}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -67,8 +67,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="FX\color.fx">
-      <Filter>fx</Filter>
+    <FxCompile Include="shaders\color.fx">
+      <Filter>shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
