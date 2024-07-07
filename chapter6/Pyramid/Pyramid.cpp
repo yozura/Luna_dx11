@@ -1,19 +1,20 @@
-#include "ColoredBox.h"
+#include "Pyramid.h"
 
-ColoredBox::ColoredBox(HINSTANCE hInstance)
+Pyramid::Pyramid(HINSTANCE hInstance)
     : D3DApp(hInstance),
-    mCBPosVertexBuffer(0),
-    mCBColorVertexBuffer(0),
-    mCBIndexBuffer(0),
+    mPyramidPosVertexBuffer(0),
+    mPyramidColorVertexBuffer(0),
+    mPyramidIndexBuffer(0),
     mFX(0),
     mTech(0),
     mfxWorldViewProj(0),
     mInputLayout(0),
+    mPyramidIndexCount(0),
     mTheta(1.5f * MathHelper::Pi),
     mPhi(0.25f * MathHelper::Pi),
     mRadius(5.0f)
 {
-    mMainWndCaption = L"Colored Box";
+    mMainWndCaption = L"Pyramid";
 
     mLastMousePos.x = 0;
     mLastMousePos.y = 0;
@@ -24,16 +25,16 @@ ColoredBox::ColoredBox(HINSTANCE hInstance)
     XMStoreFloat4x4(&mProj, I);
 }
 
-ColoredBox::~ColoredBox()
+Pyramid::~Pyramid()
 {
-    ReleaseCOM(mCBPosVertexBuffer);
-    ReleaseCOM(mCBColorVertexBuffer);
-    ReleaseCOM(mCBIndexBuffer);
+    ReleaseCOM(mPyramidPosVertexBuffer);
+    ReleaseCOM(mPyramidColorVertexBuffer);
+    ReleaseCOM(mPyramidIndexBuffer);
     ReleaseCOM(mFX);
     ReleaseCOM(mInputLayout);
 }
 
-bool ColoredBox::Init()
+bool Pyramid::Init()
 {
     if (!D3DApp::Init())
         return false;
@@ -42,10 +43,19 @@ bool ColoredBox::Init()
     BuildFX();
     BuildVertexLayout();
 
+    D3D11_RASTERIZER_DESC rd;
+    ZeroMemory(&rd, sizeof(D3D11_RASTERIZER_DESC));
+    rd.FillMode = D3D11_FILL_WIREFRAME;
+    rd.CullMode = D3D11_CULL_BACK;
+    rd.FrontCounterClockwise = false;
+    rd.DepthClipEnable = true;
+
+    HR(md3dDevice->CreateRasterizerState(&rd, &mWireFrameRS));
+
     return true;
 }
 
-void ColoredBox::OnResize()
+void Pyramid::OnResize()
 {
     D3DApp::OnResize();
 
@@ -54,7 +64,7 @@ void ColoredBox::OnResize()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void ColoredBox::UpdateScene(float dt)
+void Pyramid::UpdateScene(float dt)
 {
     // 구면 좌표를 직교 좌표로 변환
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -70,7 +80,7 @@ void ColoredBox::UpdateScene(float dt)
     XMStoreFloat4x4(&mView, V);
 }
 
-void ColoredBox::DrawScene()
+void Pyramid::DrawScene()
 {
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -83,9 +93,11 @@ void ColoredBox::DrawScene()
     UINT stride[] = { sizeof(XMFLOAT3), sizeof(XMFLOAT4) };
     UINT offset[] = { 0, 0 };
 
-    ID3D11Buffer* vertexBuffer[] = { mCBPosVertexBuffer, mCBColorVertexBuffer };
+    ID3D11Buffer* vertexBuffer[] = { mPyramidPosVertexBuffer, mPyramidColorVertexBuffer };
     md3dImmediateContext->IASetVertexBuffers(0, 2, vertexBuffer, stride, offset);
-    md3dImmediateContext->IASetIndexBuffer(mCBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    md3dImmediateContext->IASetIndexBuffer(mPyramidIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    md3dImmediateContext->RSSetState(mWireFrameRS);
 
     // 상수 버퍼 설정
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
@@ -101,13 +113,13 @@ void ColoredBox::DrawScene()
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
         mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->DrawIndexed(36, 0, 0);
+        md3dImmediateContext->DrawIndexed(mPyramidIndexCount, 0, 0);
     }
 
     HR(mSwapChain->Present(0, 0));
 }
 
-void ColoredBox::OnMouseDown(WPARAM btnState, int x, int y)
+void Pyramid::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -115,12 +127,12 @@ void ColoredBox::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void ColoredBox::OnMouseUp(WPARAM btnState, int x, int y)
+void Pyramid::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void ColoredBox::OnMouseMove(WPARAM btnState, int x, int y)
+void Pyramid::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if ((btnState & MK_LBUTTON) != 0)
     {
@@ -146,19 +158,16 @@ void ColoredBox::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
 
-void ColoredBox::BuildGeometryBuffers()
+void Pyramid::BuildGeometryBuffers()
 {
     // 정점 버퍼
     XMFLOAT3 verticesPos[] =
     {
-        XMFLOAT3(-1.0f, -1.0f, -1.0f),
-        XMFLOAT3(-1.0f, +1.0f, -1.0f),
-        XMFLOAT3(+1.0f, +1.0f, -1.0f),
-        XMFLOAT3(+1.0f, -1.0f, -1.0f),
-        XMFLOAT3(-1.0f, -1.0f, +1.0f),
-        XMFLOAT3(-1.0f, +1.0f, +1.0f),
-        XMFLOAT3(+1.0f, +1.0f, +1.0f),
-        XMFLOAT3(+1.0f, -1.0f, +1.0f),
+        XMFLOAT3(+0.0f, +1.0f, +0.0f), // 중심 정점
+        XMFLOAT3(+1.0f, -1.0f, +1.0f), // 우 하단 정점 (앞)
+        XMFLOAT3(-1.0f, -1.0f, +1.0f), // 좌 하단 정점 (앞)
+        XMFLOAT3(+1.0f, -1.0f, -1.0f), // 우 하단 정점 (뒤)
+        XMFLOAT3(-1.0f, -1.0f, -1.0f), // 좌 하단 정점 (뒤)
     };
 
     XMFLOAT4 verticesColor[] =
@@ -168,27 +177,24 @@ void ColoredBox::BuildGeometryBuffers()
         XMFLOAT4(Colors::Red),
         XMFLOAT4(Colors::Green),
         XMFLOAT4(Colors::Blue),
-        XMFLOAT4(Colors::Yellow),
-        XMFLOAT4(Colors::Cyan),
-        XMFLOAT4(Colors::Magenta)
     };
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(XMFLOAT3) * 8;
+    vbd.ByteWidth = sizeof(verticesPos);
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
     vbd.StructureByteStride = 0;
-    
+
     D3D11_SUBRESOURCE_DATA vpInitData;
     vpInitData.pSysMem = verticesPos;
-    
-    HR(md3dDevice->CreateBuffer(&vbd, &vpInitData, &mCBPosVertexBuffer));
+
+    HR(md3dDevice->CreateBuffer(&vbd, &vpInitData, &mPyramidPosVertexBuffer));
 
     D3D11_BUFFER_DESC vcbd;
     vcbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vcbd.ByteWidth = sizeof(XMFLOAT4) * 8;
+    vcbd.ByteWidth = sizeof(verticesColor);
     vcbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vcbd.CPUAccessFlags = 0;
     vcbd.MiscFlags = 0;
@@ -197,39 +203,35 @@ void ColoredBox::BuildGeometryBuffers()
     D3D11_SUBRESOURCE_DATA vcInitData;
     vcInitData.pSysMem = verticesColor;
 
-    HR(md3dDevice->CreateBuffer(&vcbd, &vcInitData, &mCBColorVertexBuffer));
+    HR(md3dDevice->CreateBuffer(&vcbd, &vcInitData, &mPyramidColorVertexBuffer));
 
     // 인덱스 버퍼
+    /*UINT indices[] =
+    {
+        0, 2, 1, 
+        0, 4, 2,
+        0, 1, 3,
+        0, 3, 4,
+        4, 1, 2,
+        4, 3, 1
+    };
+    */
     UINT indices[] =
     {
-        // 앞
-        0, 1, 2,
-        0, 2, 3,
-
-        // 뒤
-        4, 6, 5,
-        4, 7, 6,
-
-        // 왼쪽
-        4, 5, 1,
-        4, 1, 0,
-
-        // 오른쪽
-        3, 2, 6,
-        3, 6, 7,
-
-        // 위
-        1, 5, 6,
-        1, 6, 2,
-
-        // 아래
+        1, 0, 2,
+        2, 0, 4,
+        3, 0, 1,
         4, 0, 3,
-        4, 3, 7
+        2, 4, 1,
+        1, 4, 3
     };
+
+
+    mPyramidIndexCount = sizeof(indices);
 
     D3D11_BUFFER_DESC ibd;
     ibd.Usage = D3D11_USAGE_IMMUTABLE;
-    ibd.ByteWidth = sizeof(UINT) * 36;
+    ibd.ByteWidth = mPyramidIndexCount;
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
@@ -237,11 +239,11 @@ void ColoredBox::BuildGeometryBuffers()
 
     D3D11_SUBRESOURCE_DATA iInitData;
     iInitData.pSysMem = indices;
-    
-    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mCBIndexBuffer));
+
+    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mPyramidIndexBuffer));
 }
 
-void ColoredBox::BuildFX()
+void Pyramid::BuildFX()
 {
     std::ifstream fin("shaders/color.cso", std::ios::binary);
 
@@ -259,7 +261,7 @@ void ColoredBox::BuildFX()
     mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 }
 
-void ColoredBox::BuildVertexLayout()
+void Pyramid::BuildVertexLayout()
 {
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
