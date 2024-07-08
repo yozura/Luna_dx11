@@ -8,37 +8,37 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 	
 	Vertex v[24] =
 	{
-		// Àü
+		// ì „
 		Vertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
 		Vertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
 		Vertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
 		Vertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
 
-		// ÈÄ
+		// í›„
 		Vertex(-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
 		Vertex(+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
 		Vertex(+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
 		Vertex(-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
 
-		// »ó
+		// ìƒ
 		Vertex(-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
 		Vertex(-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
 		Vertex(+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
 		Vertex(+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
 
-		// ÇÏ
+		// í•˜
 		Vertex(-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
 		Vertex(+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
 		Vertex(+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
 		Vertex(-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
 		
-		// ÁÂ
+		// ì¢Œ
 		Vertex(-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
 		Vertex(-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
 		Vertex(-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
 		Vertex(-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
 
-		// ¿ì
+		// ìš°
 		Vertex(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
 		Vertex(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
 		Vertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
@@ -49,27 +49,27 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 
 	UINT i[36] =
 	{
-		// Àü
+		// ì „
 		0, 1, 2,
 		0, 2, 3,
 
-		// ÈÄ
+		// í›„
 		4, 5, 6,
 		4, 6, 7,
 
-		// »ó
+		// ìƒ
 		8, 9, 10,
 		8, 10, 11,
 
-		// ÇÏ
+		// í•˜
 		12, 13, 14,
 		12, 14, 15,
 
-		// ÁÂ
+		// ì¢Œ
 		16, 17, 18,
 		16, 18, 19,
 
-		// ¿ì
+		// ìš°
 		20, 21, 22,
 		20, 22, 23
 	};
@@ -106,12 +106,12 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 			
 			Vertex v;
 
-			// ±¸¸é ÁÂÇ¥¸¦ Á÷±³ ÁÂÇ¥·Î º¯È¯
+			// êµ¬ë©´ ì¢Œí‘œë¥¼ ì§êµ ì¢Œí‘œë¡œ ë³€í™˜
 			v.Position.x = radius * sinf(phi) * cosf(theta);
 			v.Position.y = radius * cosf(phi);
 			v.Position.z = radius * sinf(phi) * sinf(theta);
 
-			// theta¿¡ ´ëÇÑ PÀÇ Æí¹ÌºĞ
+			// thetaì— ëŒ€í•œ Pì˜ í¸ë¯¸ë¶„
 			v.TangentU.x = -radius * sinf(phi) * sinf(theta);
 			v.TangentU.y = 0.0f;
 			v.TangentU.z = +radius * sinf(phi) * cosf(theta);
@@ -183,7 +183,7 @@ void GeometryGenerator::CreateGeosphere(float radius, UINT numSubdivisions, Mesh
 	// Put a cap on the number of subdivisions.
 	numSubdivisions = MathHelper::Min(numSubdivisions, 5u);
 
-	// Á¤ÀÌ½Ê¸éÃ¼¸¦ Å×¼¿¸µÇÏ¿© ±¸¿¡ °¡±õ°Ô ÇÕ´Ï´Ù.
+	// ì •ì´ì‹­ë©´ì²´ë¥¼ í…Œì…€ë§í•˜ì—¬ êµ¬ì— ê°€ê¹ê²Œ í•©ë‹ˆë‹¤.
 	const float X = 0.525731f;
 	const float Z = 0.850651f;
 
