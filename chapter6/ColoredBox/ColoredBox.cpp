@@ -80,7 +80,7 @@ void ColoredBox::DrawScene()
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     // 정점 & 인덱스 버퍼 설정
-    UINT stride[] = { sizeof(XMFLOAT3), sizeof(XMFLOAT4) };
+    UINT stride[] = { sizeof(XMFLOAT3), sizeof(XMCOLOR) };
     UINT offset[] = { 0, 0 };
 
     ID3D11Buffer* vertexBuffer[] = { mCBPosVertexBuffer, mCBColorVertexBuffer };
@@ -148,9 +148,18 @@ void ColoredBox::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
 
+static UINT ArgbToAbgr(UINT argb)
+{
+    BYTE A = (argb >> 24) & 0xff;
+    BYTE R = (argb >> 16) & 0xff;
+    BYTE G = (argb >> 8) & 0xff;
+    BYTE B = (argb >> 0) & 0xff;
+
+    return (A << 24) | (B << 16) | (G << 8) | (R << 0);
+}
+
 void ColoredBox::BuildGeometryBuffers()
 {
-    // 정점 버퍼
     XMFLOAT3 verticesPos[] =
     {
         XMFLOAT3(-1.0f, -1.0f, -1.0f),
@@ -163,21 +172,33 @@ void ColoredBox::BuildGeometryBuffers()
         XMFLOAT3(+1.0f, -1.0f, +1.0f),
     };
 
-    XMFLOAT4 verticesColor[] =
+    XMCOLOR verticesColor[] =
     {
-        XMFLOAT4(Colors::White),
-        XMFLOAT4(Colors::Black),
-        XMFLOAT4(Colors::Red),
-        XMFLOAT4(Colors::Green),
-        XMFLOAT4(Colors::Blue),
-        XMFLOAT4(Colors::Yellow),
-        XMFLOAT4(Colors::Cyan),
-        XMFLOAT4(Colors::Magenta)
+        ArgbToAbgr(XMCOLOR(1.0f, 1.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 0.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 0.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 1.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 0.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 1.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 1.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 0.0f, 1.0f, 1.0f).c)
     };
+
+    //XMFLOAT4 verticesColor[] =
+    //{
+    //    XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), // White
+    //    XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), // Black
+    //    XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), // Red
+    //    XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), // Green
+    //    XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), // Blue
+    //    XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), // Yellow
+    //    XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), // Cyan
+    //    XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), // Magenta
+    //};
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(XMFLOAT3) * 8;
+    vbd.ByteWidth = sizeof(verticesPos);
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
@@ -190,7 +211,7 @@ void ColoredBox::BuildGeometryBuffers()
 
     D3D11_BUFFER_DESC vcbd;
     vcbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vcbd.ByteWidth = sizeof(XMFLOAT4) * 8;
+    vcbd.ByteWidth = sizeof(verticesColor);
     vcbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vcbd.CPUAccessFlags = 0;
     vcbd.MiscFlags = 0;
@@ -266,8 +287,8 @@ void ColoredBox::BuildVertexLayout()
 {
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
     D3DX11_PASS_DESC passDesc;

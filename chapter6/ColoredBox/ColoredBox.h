@@ -7,7 +7,7 @@
 struct Vertex
 {
     XMFLOAT3 Pos;
-    XMFLOAT4 Color;
+    XMCOLOR  Color;
 };
 
 class ColoredBox : public D3DApp

@@ -6,7 +6,7 @@ cbuffer cbPerObject
 
 RasterizerState WireFrame
 {
-    CullMode = NONE;
+    CullMode = BACK;
     FillMode = WIREFRAME;
 };
 
@@ -52,7 +52,7 @@ technique11 ColorTech
 {
     pass P0
     {
-        SetRasterizerState(WireFrame);
+        SetRasterizerState(Solid);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS()));

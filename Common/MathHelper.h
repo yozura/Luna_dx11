@@ -2,9 +2,10 @@
 #define MATH_HELPER_H
 
 #include <Windows.h>
-#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
 
 using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 class MathHelper
 {
