@@ -97,7 +97,7 @@ void Pyramid::DrawScene()
     md3dImmediateContext->IASetVertexBuffers(0, 2, vertexBuffer, stride, offset);
     md3dImmediateContext->IASetIndexBuffer(mPyramidIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    md3dImmediateContext->RSSetState(mWireFrameRS);
+    //md3dImmediateContext->RSSetState(mWireFrameRS);
 
     // 상수 버퍼 설정
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
@@ -172,11 +172,11 @@ void Pyramid::BuildGeometryBuffers()
 
     XMFLOAT4 verticesColor[] =
     {
-        XMFLOAT4(Colors::White),
-        XMFLOAT4(Colors::Black),
-        XMFLOAT4(Colors::Red),
         XMFLOAT4(Colors::Green),
-        XMFLOAT4(Colors::Blue),
+        XMFLOAT4(Colors::Red),
+        XMFLOAT4(Colors::Red),
+        XMFLOAT4(Colors::Red),
+        XMFLOAT4(Colors::Red),
     };
 
     D3D11_BUFFER_DESC vbd;

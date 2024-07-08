@@ -95,6 +95,8 @@ void ColoredBox::DrawScene()
 
     mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
     
+    mfxTime->SetFloat(mTimer.TotalTime());
+
     D3DX11_TECHNIQUE_DESC techDesc;
     mTech->GetDesc(&techDesc);
 
@@ -257,6 +259,7 @@ void ColoredBox::BuildFX()
     
     mTech            = mFX->GetTechniqueByName("ColorTech");
     mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+    mfxTime          = mFX->GetVariableByName("gTime")->AsScalar();
 }
 
 void ColoredBox::BuildVertexLayout()
