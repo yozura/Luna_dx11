@@ -14,7 +14,7 @@
 #include "d3dx11effect.h"
 #include "MathHelper.h"
 
-// HRESULT ø°∑Ø «⁄µÈ∑Ø
+// HRESULT ÏóêÎü¨ Ìï∏Îì§Îü¨
 #if defined(DEBUG) | defined(_DEBUG)
 	#ifndef HR
 	#define HR(x)\
@@ -35,10 +35,10 @@
 	#endif
 #endif
 
-// COM ∞¥√º «ÿ¡¶ ∏≈≈©∑Œ
+// COM Í∞ùÏ≤¥ Ìï¥Ï†ú Îß§ÌÅ¨Î°ú
 #define ReleaseCOM(x) { if (x) { x->Release(); x = 0; } }
 
-// ¿œπ› ∞¥√º «ÿ¡¶ ∏≈≈©∑Œ
+// ÏùºÎ∞ò Í∞ùÏ≤¥ Ìï¥Ï†ú Îß§ÌÅ¨Î°ú
 #define SafeDelete(x) { delete x; x = 0; }
 
 #endif /* D3D_UTIL_H */

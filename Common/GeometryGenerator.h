@@ -32,37 +32,37 @@ public:
     };
 
     /// <summary>
-    /// ÁÖ¾îÁø Â÷¼ö¸¦ ±âÁØÀ¸·Î ¿øÁ¡À» Áß½ÉÀ¸·Î ÇÏ´Â ¹Ú½º¸¦ »ı¼ºÇÕ´Ï´Ù.
+    /// ì£¼ì–´ì§„ ì°¨ìˆ˜ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ì›ì ì„ ì¤‘ì‹¬ìœ¼ë¡œ í•˜ëŠ” ë°•ìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     /// </summary>
     void CreateBox(float width, float height, float depth, MeshData& meshData);
 
     /// <summary>
-    /// ÁÖ¾îÁø ¹İÁö¸§À» ±âÁØÀ¸·Î ¿øÁ¡À» Áß½ÉÀ¸·Î ÇÏ´Â ±¸¸¦ »ı¼ºÇÕ´Ï´Ù.
-    /// sliceCount, stackCount º¯¼ö·Î Å×¼¿·¹ÀÌ¼Ç Á¤µµ¸¦ Á¦¾îÇÕ´Ï´Ù.
+    /// ì£¼ì–´ì§„ ë°˜ì§€ë¦„ì„ ê¸°ì¤€ìœ¼ë¡œ ì›ì ì„ ì¤‘ì‹¬ìœ¼ë¡œ í•˜ëŠ” êµ¬ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+    /// sliceCount, stackCount ë³€ìˆ˜ë¡œ í…Œì…€ë ˆì´ì…˜ ì •ë„ë¥¼ ì œì–´í•©ë‹ˆë‹¤.
     /// </summary>
     void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);
 
     /// <summary>
-    /// ÁÖ¾îÁø ¹İÁö¸§À» ±âÁØÀ¸·Î ¿øÁ¡À» Áß½ÉÀ¸·Î ÇÏ´Â Áö¿À½ºÇÇ¾î¸¦ »ı¼ºÇÕ´Ï´Ù.
-    /// ±íÀÌ´Â Å×¼¿·¹ÀÌ¼Ç ·¹º§À» Á¦¾îÇÕ´Ï´Ù.
+    /// ì£¼ì–´ì§„ ë°˜ì§€ë¦„ì„ ê¸°ì¤€ìœ¼ë¡œ ì›ì ì„ ì¤‘ì‹¬ìœ¼ë¡œ í•˜ëŠ” ì§€ì˜¤ìŠ¤í”¼ì–´ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+    /// ê¹Šì´ëŠ” í…Œì…€ë ˆì´ì…˜ ë ˆë²¨ì„ ì œì–´í•©ë‹ˆë‹¤.
     /// </summary>
     void CreateGeosphere(float radius, UINT numSubdivisions, MeshData& meshData);
 
     /// <summary>
-    /// yÃà ÆòÇàÇÏ¸ç ¿øÁ¡À» Áß½ÉÀ¸·Î ÇÏ´Â ¿ø±âµÕÀ» »ı¼ºÇÕ´Ï´Ù.
-    /// bottomRadius, topRadius º¯¼ö·Î ¿ø±âµÕÀÇ ¸ğ¾çÀ» º¯Çü½ÃÅ³ ¼ö ÀÖ½À´Ï´Ù.
-    /// sliceCount, stackCount º¯¼ö´Â Å×¼¿·¹ÀÌ¼Ç Á¤µµ¸¦ Á¦¾îÇÕ´Ï´Ù.
+    /// yì¶• í‰í–‰í•˜ë©° ì›ì ì„ ì¤‘ì‹¬ìœ¼ë¡œ í•˜ëŠ” ì›ê¸°ë‘¥ì„ ìƒì„±í•©ë‹ˆë‹¤.
+    /// bottomRadius, topRadius ë³€ìˆ˜ë¡œ ì›ê¸°ë‘¥ì˜ ëª¨ì–‘ì„ ë³€í˜•ì‹œí‚¬ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+    /// sliceCount, stackCount ë³€ìˆ˜ëŠ” í…Œì…€ë ˆì´ì…˜ ì •ë„ë¥¼ ì œì–´í•©ë‹ˆë‹¤.
     /// </summary>
     void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
 
     /// <summary>
-    /// ÁöÁ¤µÈ ³Êºñ¿Í ±íÀÌ¸¦ °¡Áø ¿øÁ¡À» Áß½ÉÀ¸·Î m°³ÀÇ Çà°ú n°³ÀÇ ¿­·Î xz Æò¸é¿¡ m*n °İÀÚ¸¦ ¸¸µì´Ï´Ù.
+    /// ì§€ì •ëœ ë„ˆë¹„ì™€ ê¹Šì´ë¥¼ ê°€ì§„ ì›ì ì„ ì¤‘ì‹¬ìœ¼ë¡œ mê°œì˜ í–‰ê³¼ nê°œì˜ ì—´ë¡œ xz í‰ë©´ì— m*n ê²©ìë¥¼ ë§Œë“­ë‹ˆë‹¤.
     /// </summary>
     void CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData);
     
     /// <summary>
-    /// NDC ÁÂÇ¥·Î È­¸éÀ» µ¤´Â Äõµå¸¦ ¸¸µì´Ï´Ù.
-    /// ÈÄÃ³¸® È¿°ú¿¡ À¯¿ëÇÕ´Ï´Ù.
+    /// NDC ì¢Œí‘œë¡œ í™”ë©´ì„ ë®ëŠ” ì¿¼ë“œë¥¼ ë§Œë“­ë‹ˆë‹¤.
+    /// í›„ì²˜ë¦¬ íš¨ê³¼ì— ìœ ìš©í•©ë‹ˆë‹¤.
     /// </summary>
     void CreateFullscreenQuad(MeshData& meshData);
 

@@ -1,9 +1,10 @@
-#include "Box.h"
+#include "ColoredBox.h"
 
-Box::Box(HINSTANCE hInstance)
+ColoredBox::ColoredBox(HINSTANCE hInstance)
     : D3DApp(hInstance),
-    mBoxVB(0),
-    mBoxIB(0),
+    mCBPosVertexBuffer(0),
+    mCBColorVertexBuffer(0),
+    mCBIndexBuffer(0),
     mFX(0),
     mTech(0),
     mfxWorldViewProj(0),
@@ -12,7 +13,7 @@ Box::Box(HINSTANCE hInstance)
     mPhi(0.25f * MathHelper::Pi),
     mRadius(5.0f)
 {
-    mMainWndCaption = L"Box";
+    mMainWndCaption = L"Colored Box";
 
     mLastMousePos.x = 0;
     mLastMousePos.y = 0;
@@ -23,15 +24,16 @@ Box::Box(HINSTANCE hInstance)
     XMStoreFloat4x4(&mProj, I);
 }
 
-Box::~Box()
+ColoredBox::~ColoredBox()
 {
-    ReleaseCOM(mBoxVB);
-    ReleaseCOM(mBoxIB);
+    ReleaseCOM(mCBPosVertexBuffer);
+    ReleaseCOM(mCBColorVertexBuffer);
+    ReleaseCOM(mCBIndexBuffer);
     ReleaseCOM(mFX);
     ReleaseCOM(mInputLayout);
 }
 
-bool Box::Init()
+bool ColoredBox::Init()
 {
     if (!D3DApp::Init())
         return false;
@@ -43,23 +45,21 @@ bool Box::Init()
     return true;
 }
 
-void Box::OnResize()
+void ColoredBox::OnResize()
 {
     D3DApp::OnResize();
 
-    // 창 크기가 재설정 되었으므로 원근 투영 행렬을 종횡비에 맞게 재설정.
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Box::UpdateScene(float dt)
+void ColoredBox::UpdateScene(float dt)
 {
-    // 구면 좌표를 직교 좌표로 변환
+    // 구면 좌표 to 직교 좌표
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
     float z = mRadius * sinf(mPhi) * sinf(mTheta);
     float y = mRadius * cosf(mPhi);
 
-    // 뷰 행렬 설정
     XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
     XMVECTOR target = XMVectorZero();
     XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -68,22 +68,23 @@ void Box::UpdateScene(float dt)
     XMStoreFloat4x4(&mView, V);
 }
 
-void Box::DrawScene()
+void ColoredBox::DrawScene()
 {
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    // 입력 어셈블러
+    // IA Steage
     md3dImmediateContext->IASetInputLayout(mInputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    // 정점 & 인덱스 버퍼 설정
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-    md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoxVB, &stride, &offset);
-    md3dImmediateContext->IASetIndexBuffer(mBoxIB, DXGI_FORMAT_R32_UINT, 0);
+    UINT stride[] = { sizeof(XMFLOAT3), sizeof(XMCOLOR) };
+    UINT offset[] = { 0, 0 };
 
-    // 상수 버퍼 설정
+    ID3D11Buffer* vertexBuffer[] = { mCBPosVertexBuffer, mCBColorVertexBuffer };
+    md3dImmediateContext->IASetVertexBuffers(0, 2, vertexBuffer, stride, offset);
+    md3dImmediateContext->IASetIndexBuffer(mCBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    
+    // 상수 버퍼
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
     XMMATRIX view  = XMLoadFloat4x4(&mView);
     XMMATRIX proj  = XMLoadFloat4x4(&mProj);
@@ -91,6 +92,8 @@ void Box::DrawScene()
 
     mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
     
+    mfxTime->SetFloat(mTimer.TotalTime());
+
     D3DX11_TECHNIQUE_DESC techDesc;
     mTech->GetDesc(&techDesc);
 
@@ -103,7 +106,7 @@ void Box::DrawScene()
     HR(mSwapChain->Present(0, 0));
 }
 
-void Box::OnMouseDown(WPARAM btnState, int x, int y)
+void ColoredBox::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -111,12 +114,12 @@ void Box::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void Box::OnMouseUp(WPARAM btnState, int x, int y)
+void ColoredBox::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void Box::OnMouseMove(WPARAM btnState, int x, int y)
+void ColoredBox::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if ((btnState & MK_LBUTTON) != 0)
     {
@@ -142,58 +145,97 @@ void Box::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
 
-void Box::BuildGeometryBuffers()
+static UINT ArgbToAbgr(UINT argb)
 {
-    // 정점 버퍼
-    Vertex vertices[] =
+    BYTE A = (argb >> 24) & 0xff;
+    BYTE R = (argb >> 16) & 0xff;
+    BYTE G = (argb >> 8) & 0xff;
+    BYTE B = (argb >> 0) & 0xff;
+
+    return (A << 24) | (B << 16) | (G << 8) | (R << 0);
+}
+
+void ColoredBox::BuildGeometryBuffers()
+{
+    XMFLOAT3 verticesPos[] =
     {
-        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White)   },
-        { XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black)   },
-        { XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red)     },
-        { XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green)   },
-        { XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue)    },
-        { XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow)  },
-        { XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan)    },
-        { XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) }
+        XMFLOAT3(-1.0f, -1.0f, -1.0f),
+        XMFLOAT3(-1.0f, +1.0f, -1.0f),
+        XMFLOAT3(+1.0f, +1.0f, -1.0f),
+        XMFLOAT3(+1.0f, -1.0f, -1.0f),
+        XMFLOAT3(-1.0f, -1.0f, +1.0f),
+        XMFLOAT3(-1.0f, +1.0f, +1.0f),
+        XMFLOAT3(+1.0f, +1.0f, +1.0f),
+        XMFLOAT3(+1.0f, -1.0f, +1.0f),
     };
+
+    XMCOLOR verticesColor[] =
+    {
+        ArgbToAbgr(XMCOLOR(1.0f, 1.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 0.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 0.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 1.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 0.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 1.0f, 0.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(0.0f, 1.0f, 1.0f, 1.0f).c),
+        ArgbToAbgr(XMCOLOR(1.0f, 0.0f, 1.0f, 1.0f).c)
+    };
+
+    //XMFLOAT4 verticesColor[] =
+    //{
+    //    XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), // White
+    //    XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), // Black
+    //    XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), // Red
+    //    XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), // Green
+    //    XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), // Blue
+    //    XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), // Yellow
+    //    XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), // Cyan
+    //    XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), // Magenta
+    //};
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(Vertex) * 8;
+    vbd.ByteWidth = sizeof(verticesPos);
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
     vbd.StructureByteStride = 0;
     
-    D3D11_SUBRESOURCE_DATA vInitData;
-    vInitData.pSysMem = vertices;
+    D3D11_SUBRESOURCE_DATA vpInitData;
+    vpInitData.pSysMem = verticesPos;
     
-    HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mBoxVB));
+    HR(md3dDevice->CreateBuffer(&vbd, &vpInitData, &mCBPosVertexBuffer));
 
-    // 인덱스 버퍼
+    D3D11_BUFFER_DESC vcbd;
+    vcbd.Usage = D3D11_USAGE_IMMUTABLE;
+    vcbd.ByteWidth = sizeof(verticesColor);
+    vcbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vcbd.CPUAccessFlags = 0;
+    vcbd.MiscFlags = 0;
+    vcbd.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA vcInitData;
+    vcInitData.pSysMem = verticesColor;
+
+    HR(md3dDevice->CreateBuffer(&vcbd, &vcInitData, &mCBColorVertexBuffer));
+
     UINT indices[] =
     {
-        // 앞
         0, 1, 2,
         0, 2, 3,
 
-        // 뒤
         4, 6, 5,
         4, 7, 6,
 
-        // 왼쪽
         4, 5, 1,
         4, 1, 0,
 
-        // 오른쪽
         3, 2, 6,
         3, 6, 7,
 
-        // 위
         1, 5, 6,
         1, 6, 2,
 
-        // 아래
         4, 0, 3,
         4, 3, 7
     };
@@ -209,58 +251,34 @@ void Box::BuildGeometryBuffers()
     D3D11_SUBRESOURCE_DATA iInitData;
     iInitData.pSysMem = indices;
     
-    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mBoxIB));
+    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mCBIndexBuffer));
 }
 
-void Box::BuildFX()
+void ColoredBox::BuildFX()
 {
-    DWORD shaderFlags = 0;
-#if defined( DEBUG ) || defined( _DEBUG )
-    shaderFlags |= D3D10_SHADER_DEBUG;
-    shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-#endif
+    std::ifstream fin("shaders/color.cso", std::ios::binary);
+
+    fin.seekg(0, std::ios::end);
+    int size = (int)fin.tellg();
+    fin.seekg(0, std::ios::beg);
+    std::vector<char> compiledShader(size);
+
+    fin.read(&compiledShader[0], size);
+    fin.close();
+
+    HR(D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, md3dDevice, &mFX));
     
-    ID3D10Blob* compiledShader = 0;
-    ID3D10Blob* compilationMsgs = 0;
-    HRESULT hr = D3DCompileFromFile(
-        L"shaders/color.fx",
-        nullptr,
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,
-        "fx_5_0",
-        "fx_5_0",
-        shaderFlags,
-        0,
-        &compiledShader,
-        &compilationMsgs
-    );
-
-    if (compilationMsgs != 0)
-    {
-        MessageBoxA(0, (char*)compilationMsgs->GetBufferPointer(), 0, 0);
-        ReleaseCOM(compilationMsgs);
-    }
-
-    if (FAILED(hr))
-    {
-        LPWSTR output;
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&output, 0, NULL);
-        MessageBox(NULL, output, TEXT("Error: D3DCompileFromFile"), MB_OK);
-    }
-
-    HR(D3DX11CreateEffectFromMemory(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(), 0, md3dDevice, &mFX));
-    ReleaseCOM(compiledShader);
-
     mTech            = mFX->GetTechniqueByName("ColorTech");
     mfxWorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+    mfxTime          = mFX->GetVariableByName("gTime")->AsScalar();
 }
 
-void Box::BuildVertexLayout()
+void ColoredBox::BuildVertexLayout()
 {
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
     D3DX11_PASS_DESC passDesc;

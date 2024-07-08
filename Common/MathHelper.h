@@ -2,20 +2,21 @@
 #define MATH_HELPER_H
 
 #include <Windows.h>
-#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
 
 using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 class MathHelper
 {
 public:
-    // [0, 1) ÀÇ °ªÀ» ¹İÈ¯.
+    // [0, 1) ì˜ ê°’ì„ ë°˜í™˜.
     static float RandF()
     {
         return (float)(rand()) / (float)RAND_MAX;
     }
 
-    // [a, b) ÀÇ °ªÀ» ¹İÈ¯.
+    // [a, b) ì˜ ê°’ì„ ë°˜í™˜.
     static float RandF(float a, float b)
     {
         return a + RandF() * (b - a);
@@ -45,7 +46,7 @@ public:
         return x < low ? low : (x > high ? high : x);
     }
 
-    // [0, 2*PI) ¿¡ ¼ÓÇÑ Á¡(x, y)ÀÇ ±ØÁÂÇ¥ °¢µµ¸¦ ¹İÈ¯.
+    // [0, 2*PI) ì— ì†í•œ ì (x, y)ì˜ ê·¹ì¢Œí‘œ ê°ë„ë¥¼ ë°˜í™˜.
     static float AngleFromXY(float x, float y);
 
     static XMMATRIX InverseTranspose(CXMMATRIX M)

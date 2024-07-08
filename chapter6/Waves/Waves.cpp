@@ -85,10 +85,10 @@ void Waves::Update(float dt)
 {
     static float t = 0;
 
-    // ½Ã°£ ´©Àû
+    // ì‹œê°„ ëˆ„ì 
     t += dt;
 
-    // ÁöÁ¤µÈ ½Ã°£ °£°Ý¿¡ µû¶ó ½ÇÇàµÊ.
+    // ì§€ì •ëœ ì‹œê°„ ê°„ê²©ì— ë”°ë¼ ì‹¤í–‰ë¨.
     if (t >= mTimeStep)
     {
         for (DWORD i = 1; i < mNumRows - 1; ++i)
@@ -104,10 +104,10 @@ void Waves::Update(float dt)
             }
         }
 
-        // ÀÌÀü ¼Ö·ç¼Ç¿¡ ÇöÀç ¼Ö·ç¼Ç µ¤¾î¾²±â
+        // ì´ì „ ì†”ë£¨ì…˜ì— í˜„ìž¬ ì†”ë£¨ì…˜ ë®ì–´ì“°ê¸°
         std::swap(mPrevSolution, mCurrSolution);
 
-        // ½Ã°£ ¸®¼Â
+        // ì‹œê°„ ë¦¬ì…‹
         t = 0.0f;
     }
 }

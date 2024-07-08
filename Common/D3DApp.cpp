@@ -125,14 +125,14 @@ void D3DApp::OnResize()
 	ReleaseCOM(mDepthStencilView);
 	ReleaseCOM(mDepthStencilBuffer);
 
-	// SwapChainÀ» ¸®»çÀÌÂ¡ÇÏ°í ·»´õ Å¸°Ù ºä¸¦ Àç»ı¼ºÇÑ´Ù.
+	// SwapChainì„ ë¦¬ì‚¬ì´ì§•í•˜ê³  ë Œë” íƒ€ê²Ÿ ë·°ë¥¼ ì¬ìƒì„±í•œë‹¤.
 	HR(mSwapChain->ResizeBuffers(1, mClientWidth, mClientHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	ID3D11Texture2D* backBuffer;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
 	HR(md3dDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
 	ReleaseCOM(backBuffer);
 
-    // ±íÀÌ/½ºÅÙ½Ç ¹öÆÛ¿Í ºä¸¦ Àç»ı¼ºÇÑ´Ù.
+    // ê¹Šì´/ìŠ¤í…ì‹¤ ë²„í¼ì™€ ë·°ë¥¼ ì¬ìƒì„±í•œë‹¤.
     D3D11_TEXTURE2D_DESC depthStencilDesc;
     depthStencilDesc.Width		= mClientWidth;
     depthStencilDesc.Height		= mClientHeight;
@@ -140,7 +140,7 @@ void D3DApp::OnResize()
     depthStencilDesc.ArraySize	= 1;
     depthStencilDesc.Format		= DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-	// 4X ¸ÖÆ¼»ùÇÃ¸µ ¾ÈÆ¼¾Ù¸®¾î½Ì »ç¿ë ¿©ºÎ
+	// 4X ë©€í‹°ìƒ˜í”Œë§ ì•ˆí‹°ì•¨ë¦¬ì–´ì‹± ì‚¬ìš© ì—¬ë¶€
 	if (mEnable4xMsaa)
 	{
 		depthStencilDesc.SampleDesc.Count	= 4;
@@ -160,10 +160,10 @@ void D3DApp::OnResize()
 	HR(md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
 	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
-	// ·»´õ Å¸°Ù ºä¿Í ±íÀÌ/½ºÅÙ½Ç ºä¸¦ Ãâ·Â º´ÇÕ±â¿¡ ¹ÙÀÎµù
+	// ë Œë” íƒ€ê²Ÿ ë·°ì™€ ê¹Šì´/ìŠ¤í…ì‹¤ ë·°ë¥¼ ì¶œë ¥ ë³‘í•©ê¸°ì— ë°”ì¸ë”©
 	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
-	// ºäÆ÷Æ® ¼³Á¤
+	// ë·°í¬íŠ¸ ì„¤ì •
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
 	mScreenViewport.Width	 = static_cast<float>(mClientWidth);
@@ -212,26 +212,26 @@ LRESULT D3DApp::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				if (mMinimized)
 				{
-					// ÃÖ¼ÒÈ­ »óÅÂ¿¡¼­ º¹¿øÇÏ´Â °æ¿ì
+					// ìµœì†Œí™” ìƒíƒœì—ì„œ ë³µì›í•˜ëŠ” ê²½ìš°
 					mAppPaused = false;
 					mMinimized = false;
 					OnResize();
 				}
 				else if (mMaximized)
 				{
-					// ÃÖ´ëÈ­ »óÅÂ¿¡¼­ º¹¿øÇÏ´Â °æ¿ì
+					// ìµœëŒ€í™” ìƒíƒœì—ì„œ ë³µì›í•˜ëŠ” ê²½ìš°
 					mAppPaused = false;
 					mMaximized = false;
 					OnResize();
 				}
 				else if (mResizing)
 				{
-					// À¯Àú°¡ ¹Ù¸¦ µå·¡±×ÇÏ¸ç ¿òÁ÷ÀÏ ¶§´Â º¯È­ÇÏÁö ¾ÊÀ¸¸ç
-					// ¹Ù¿¡¼­ ¼ÕÀ» ³õÀ» ¶§ WM_EXITSIZEMOVE ¸Ş½ÃÁö°¡ Àü¼ÛµÇ¾î ±×°÷¿¡¼­ Resize ÀÛ¾÷À» ÇÑ´Ù.
+					// ìœ ì €ê°€ ë°”ë¥¼ ë“œë˜ê·¸í•˜ë©° ì›€ì§ì¼ ë•ŒëŠ” ë³€í™”í•˜ì§€ ì•Šìœ¼ë©°
+					// ë°”ì—ì„œ ì†ì„ ë†“ì„ ë•Œ WM_EXITSIZEMOVE ë©”ì‹œì§€ê°€ ì „ì†¡ë˜ì–´ ê·¸ê³³ì—ì„œ Resize ì‘ì—…ì„ í•œë‹¤.
 				}
 				else
 				{
-					// SetWindowPos ÇÔ¼ö¸¦ »ç¿ëÇÏ°Å³ª mSwapChain->SetFullscreenState¸¦ »ç¿ëÇÒ °æ¿ì È£ÃâµÊ
+					// SetWindowPos í•¨ìˆ˜ë¥¼ ì‚¬ìš©í•˜ê±°ë‚˜ mSwapChain->SetFullscreenStateë¥¼ ì‚¬ìš©í•  ê²½ìš° í˜¸ì¶œë¨
 					OnResize();
 				}
 			}

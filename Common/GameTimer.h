@@ -6,13 +6,13 @@ class GameTimer
 public:
 	GameTimer();
 
-	float DeltaTime() const;	// ÃÊ ´ÜÀ§
-	float TotalTime() const;	// ÃÊ ´ÜÀ§
+	float DeltaTime() const;	// ì´ˆ ë‹¨ìœ„
+	float TotalTime() const;	// ì´ˆ ë‹¨ìœ„
 
-	void Reset();				// ¸Ş½ÃÁö ·çÇÁ ÀÌÈÄ È£Ãâ
+	void Reset();				// ë©”ì‹œì§€ ë£¨í”„ ì´í›„ í˜¸ì¶œ
 	void Start();				
 	void Stop();				
-	void Tick();				// ¸Å ÇÁ·¹ÀÓ¸¶´Ù È£Ãâ
+	void Tick();				// ë§¤ í”„ë ˆì„ë§ˆë‹¤ í˜¸ì¶œ
 
 private:
 	double mSecondsPerCount;
