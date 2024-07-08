@@ -40,8 +40,6 @@ private:
 
     ID3D11InputLayout* mInputLayout;
 
-    ID3D11RasterizerState* mWireFrameRS;
-
     XMFLOAT4X4 mSkullWorld;
 
     UINT mSkullIndexCount;

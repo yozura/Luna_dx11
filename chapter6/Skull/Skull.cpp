@@ -4,7 +4,7 @@ Skull::Skull(HINSTANCE hInstance)
     : D3DApp(hInstance),
     mVertexBuffer(0), mIndexBuffer(0),
     mFX(0), mTech(0), mfxWorldViewProj(0),
-    mInputLayout(0), mWireFrameRS(0), mSkullIndexCount(0),
+    mInputLayout(0), mSkullIndexCount(0),
     mTheta(1.5f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(20.0f)
 {
     mMainWndCaption = L"Skull";
@@ -26,7 +26,6 @@ Skull::~Skull()
     ReleaseCOM(mIndexBuffer);
     ReleaseCOM(mFX);
     ReleaseCOM(mInputLayout);
-    ReleaseCOM(mWireFrameRS);
 }
 
 bool Skull::Init()
@@ -37,15 +36,6 @@ bool Skull::Init()
     BuildGeometryBuffers();
     BuildFX();
     BuildVertexLayout();
-
-    D3D11_RASTERIZER_DESC wireFrameDesc;
-    ZeroMemory(&wireFrameDesc, sizeof(D3D11_RASTERIZER_DESC));
-    wireFrameDesc.FillMode = D3D11_FILL_WIREFRAME;
-    wireFrameDesc.CullMode = D3D11_CULL_BACK;
-    wireFrameDesc.FrontCounterClockwise = false;
-    wireFrameDesc.DepthClipEnable = true;
-
-    HR(md3dDevice->CreateRasterizerState(&wireFrameDesc, &mWireFrameRS));
 
     return true;
 }

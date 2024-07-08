@@ -40,7 +40,7 @@ private:
 
 	ID3D11InputLayout* mInputLayout;
 	
-	ID3D11RasterizerState* mWireFrameRS;
+	ID3D11RasterizerState* mWireFrameScissorRS;
 
 	XMFLOAT4X4 mSphereWorld[10];
 	XMFLOAT4X4 mCylinderWorld[10];

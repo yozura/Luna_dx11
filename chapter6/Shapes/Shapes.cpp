@@ -4,7 +4,7 @@ Shapes::Shapes(HINSTANCE hInstance)
     : D3DApp(hInstance),
     mVertexBuffer(0), mIndexBuffer(0),
     mFX(0), mTech(0), mfxWorldViewProj(0),
-    mInputLayout(0), mWireFrameRS(0),
+    mInputLayout(0), mWireFrameScissorRS(0),
     mTheta(1.5f * MathHelper::Pi),
     mPhi(0.1f * MathHelper::Pi),
     mRadius(15.0f)
@@ -43,7 +43,7 @@ Shapes::~Shapes()
     ReleaseCOM(mIndexBuffer);
     ReleaseCOM(mFX);
     ReleaseCOM(mInputLayout);
-    ReleaseCOM(mWireFrameRS);
+    ReleaseCOM(mWireFrameScissorRS);
 }
 
 bool Shapes::Init()
@@ -55,14 +55,15 @@ bool Shapes::Init()
     BuildFX();
     BuildVertexLayout();
 
-    D3D11_RASTERIZER_DESC wireFrameDesc;
-    ZeroMemory(&wireFrameDesc, sizeof(D3D11_RASTERIZER_DESC));
-    wireFrameDesc.FillMode = D3D11_FILL_WIREFRAME;
-    wireFrameDesc.CullMode = D3D11_CULL_BACK;
-    wireFrameDesc.FrontCounterClockwise = false;
-    wireFrameDesc.DepthClipEnable = true;
+    D3D11_RASTERIZER_DESC wireFrameScissorDesc;
+    ZeroMemory(&wireFrameScissorDesc, sizeof(D3D11_RASTERIZER_DESC));
+    wireFrameScissorDesc.FillMode = D3D11_FILL_WIREFRAME;
+    wireFrameScissorDesc.CullMode = D3D11_CULL_BACK;
+    wireFrameScissorDesc.FrontCounterClockwise = false;
+    wireFrameScissorDesc.DepthClipEnable = true;
+    wireFrameScissorDesc.ScissorEnable = true;
 
-    HR(md3dDevice->CreateRasterizerState(&wireFrameDesc, &mWireFrameRS));
+    HR(md3dDevice->CreateRasterizerState(&wireFrameScissorDesc, &mWireFrameScissorRS));
 
     return true;
 }
@@ -97,7 +98,15 @@ void Shapes::DrawScene()
     md3dImmediateContext->IASetInputLayout(mInputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    md3dImmediateContext->RSSetState(mWireFrameRS);
+    md3dImmediateContext->RSSetState(mWireFrameScissorRS);
+
+    D3D11_RECT rects;
+    rects.left = 200;
+    rects.right = mClientWidth - rects.left;
+    rects.top = 200;
+    rects.bottom = mClientHeight - rects.top;
+
+    md3dImmediateContext->RSSetScissorRects(1, &rects);
 
     UINT stride = sizeof(Vertex);
     UINT offset = 0;
@@ -213,7 +222,7 @@ void Shapes::BuildGeometryBuffers()
     GeometryGenerator geoGen;
     geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
     geoGen.CreateGrid(20.0f, 30.0f, 60, 40, grid);
-    geoGen.CreateSphere(0.5f, 20, 20, sphere);
+    geoGen.CreateGeosphere(0.5f, 3, sphere);
     geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, cylinder);
 
     mBoxVertexOffset      = 0;
