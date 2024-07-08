@@ -54,7 +54,7 @@ void Hills::OnResize()
 
 void Hills::UpdateScene(float dt)
 {
-    // ±¸¸é ÁÂÇ¥¿¡¼­ Á÷±³ ÁÂÇ¥·Î º¯È¯
+    // êµ¬ë©´ ì¢Œí‘œì—ì„œ ì§êµ ì¢Œí‘œë¡œ ë³€í™˜
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
     float z = mRadius * sinf(mPhi) * sinf(mTheta);
     float y = mRadius * cosf(mPhi);
@@ -166,7 +166,7 @@ void Hills::BuildGeometryBuffers()
         
         vertices[i].Pos = p;
 
-        // Á¤Á¡ÀÇ ³ôÀÌ¿¡ µû¶ó »öÀ» ¹Ù²ã Æ¯Á¤ ÁöÇüÀ» ³ªÅ¸³¿.
+        // ì •ì ì˜ ë†’ì´ì— ë”°ë¼ ìƒ‰ì„ ë°”ê¿” íŠ¹ì • ì§€í˜•ì„ ë‚˜íƒ€ëƒ„.
         if (p.y < -10.0f)
         {
             // Sandy beach color.

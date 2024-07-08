@@ -47,19 +47,19 @@ void Box::OnResize()
 {
     D3DApp::OnResize();
 
-    // Ã¢ Å©±â°¡ Àç¼³Á¤ µÇ¾úÀ¸¹Ç·Î ¿ø±Ù Åõ¿µ Çà·ÄÀ» Á¾È¾ºñ¿¡ ¸Â°Ô Àç¼³Á¤.
+    // ì°½ í¬ê¸°ê°€ ì¬ì„¤ì • ë˜ì—ˆìœ¼ë¯€ë¡œ ì›ê·¼ íˆ¬ì˜ í–‰ë ¬ì„ ì¢…íš¡ë¹„ì— ë§ê²Œ ì¬ì„¤ì •.
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 }
 
 void Box::UpdateScene(float dt)
 {
-    // ±¸¸é ÁÂÇ¥¸¦ Á÷±³ ÁÂÇ¥·Î º¯È¯
+    // êµ¬ë©´ ì¢Œí‘œë¥¼ ì§êµ ì¢Œí‘œë¡œ ë³€í™˜
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
     float z = mRadius * sinf(mPhi) * sinf(mTheta);
     float y = mRadius * cosf(mPhi);
 
-    // ºä Çà·Ä ¼³Á¤
+    // ë·° í–‰ë ¬ ì„¤ì •
     XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
     XMVECTOR target = XMVectorZero();
     XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -73,17 +73,17 @@ void Box::DrawScene()
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    // ÀÔ·Â ¾î¼Àºí·¯
+    // ì…ë ¥ ì–´ì…ˆë¸”ëŸ¬
     md3dImmediateContext->IASetInputLayout(mInputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    // Á¤Á¡ & ÀÎµ¦½º ¹öÆÛ ¼³Á¤
+    // ì •ì  & ì¸ë±ìŠ¤ ë²„í¼ ì„¤ì •
     UINT stride = sizeof(Vertex);
     UINT offset = 0;
     md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoxVB, &stride, &offset);
     md3dImmediateContext->IASetIndexBuffer(mBoxIB, DXGI_FORMAT_R32_UINT, 0);
 
-    // »ó¼ö ¹öÆÛ ¼³Á¤
+    // ìƒìˆ˜ ë²„í¼ ì„¤ì •
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
     XMMATRIX view  = XMLoadFloat4x4(&mView);
     XMMATRIX proj  = XMLoadFloat4x4(&mProj);
@@ -144,7 +144,7 @@ void Box::OnMouseMove(WPARAM btnState, int x, int y)
 
 void Box::BuildGeometryBuffers()
 {
-    // Á¤Á¡ ¹öÆÛ
+    // ì •ì  ë²„í¼
     Vertex vertices[] =
     {
         { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White)   },
@@ -170,30 +170,30 @@ void Box::BuildGeometryBuffers()
     
     HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mBoxVB));
 
-    // ÀÎµ¦½º ¹öÆÛ
+    // ì¸ë±ìŠ¤ ë²„í¼
     UINT indices[] =
     {
-        // ¾Õ
+        // ì•
         0, 1, 2,
         0, 2, 3,
 
-        // µÚ
+        // ë’¤
         4, 6, 5,
         4, 7, 6,
 
-        // ¿ŞÂÊ
+        // ì™¼ìª½
         4, 5, 1,
         4, 1, 0,
 
-        // ¿À¸¥ÂÊ
+        // ì˜¤ë¥¸ìª½
         3, 2, 6,
         3, 6, 7,
 
-        // À§
+        // ìœ„
         1, 5, 6,
         1, 6, 2,
 
-        // ¾Æ·¡
+        // ì•„ë˜
         4, 0, 3,
         4, 3, 7
     };

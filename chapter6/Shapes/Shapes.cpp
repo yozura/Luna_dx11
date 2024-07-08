@@ -121,28 +121,28 @@ void Shapes::DrawScene()
     mTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        // ±×¸®µå
+        // ê·¸ë¦¬ë“œ
         XMMATRIX world = XMLoadFloat4x4(&mGridWorld);
         XMMATRIX worldViewProj = world * viewProj;
         mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
         mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
 
-        // ¹Ú½º
+        // ë°•ìŠ¤
         world = XMLoadFloat4x4(&mBoxWorld);
         worldViewProj = world * viewProj;
         mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
         mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
 
-        // Áß½É ±¸
+        // ì¤‘ì‹¬ êµ¬
         world = XMLoadFloat4x4(&mCenterSphere);
         worldViewProj = world * viewProj;
         mfxWorldViewProj->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
         mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
 
-        // ¿ø±âµÕ
+        // ì›ê¸°ë‘¥
         for (int i = 0; i < 10; ++i)
         {
             world = XMLoadFloat4x4(&mCylinderWorld[i]);
@@ -152,7 +152,7 @@ void Shapes::DrawScene()
             md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
         }
 
-        // ±¸
+        // êµ¬
         for (int i = 0; i < 10; ++i)
         {
             world = XMLoadFloat4x4(&mSphereWorld[i]);

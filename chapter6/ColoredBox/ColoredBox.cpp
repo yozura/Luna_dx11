@@ -49,19 +49,17 @@ void ColoredBox::OnResize()
 {
     D3DApp::OnResize();
 
-    // Ã¢ Å©±â°¡ Àç¼³Á¤ µÇ¾úÀ¸¹Ç·Î ¿ø±Ù Åõ¿µ Çà·ÄÀ» Á¾È¾ºñ¿¡ ¸Â°Ô Àç¼³Á¤.
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 }
 
 void ColoredBox::UpdateScene(float dt)
 {
-    // ±¸¸é ÁÂÇ¥¸¦ Á÷±³ ÁÂÇ¥·Î º¯È¯
+    // êµ¬ë©´ ì¢Œí‘œ to ì§êµ ì¢Œí‘œ
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
     float z = mRadius * sinf(mPhi) * sinf(mTheta);
     float y = mRadius * cosf(mPhi);
 
-    // ºä Çà·Ä ¼³Á¤
     XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
     XMVECTOR target = XMVectorZero();
     XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -75,19 +73,18 @@ void ColoredBox::DrawScene()
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    // ÀÔ·Â ¾î¼Àºí·¯
+    // IA Steage
     md3dImmediateContext->IASetInputLayout(mInputLayout);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    // Á¤Á¡ & ÀÎµ¦½º ¹öÆÛ ¼³Á¤
     UINT stride[] = { sizeof(XMFLOAT3), sizeof(XMCOLOR) };
     UINT offset[] = { 0, 0 };
 
     ID3D11Buffer* vertexBuffer[] = { mCBPosVertexBuffer, mCBColorVertexBuffer };
     md3dImmediateContext->IASetVertexBuffers(0, 2, vertexBuffer, stride, offset);
     md3dImmediateContext->IASetIndexBuffer(mCBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-    // »ó¼ö ¹öÆÛ ¼³Á¤
+    
+    // ìƒìˆ˜ ë²„í¼
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
     XMMATRIX view  = XMLoadFloat4x4(&mView);
     XMMATRIX proj  = XMLoadFloat4x4(&mProj);
@@ -222,30 +219,23 @@ void ColoredBox::BuildGeometryBuffers()
 
     HR(md3dDevice->CreateBuffer(&vcbd, &vcInitData, &mCBColorVertexBuffer));
 
-    // ÀÎµ¦½º ¹öÆÛ
     UINT indices[] =
     {
-        // ¾Õ
         0, 1, 2,
         0, 2, 3,
 
-        // µÚ
         4, 6, 5,
         4, 7, 6,
 
-        // ¿ÞÂÊ
         4, 5, 1,
         4, 1, 0,
 
-        // ¿À¸¥ÂÊ
         3, 2, 6,
         3, 6, 7,
 
-        // À§
         1, 5, 6,
         1, 6, 2,
 
-        // ¾Æ·¡
         4, 0, 3,
         4, 3, 7
     };

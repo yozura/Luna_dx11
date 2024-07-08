@@ -75,7 +75,7 @@ void MainApp::UpdateScene(float dt)
     XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, V);
 
-    // ¸Å 0.25ÃÊ¸¶´Ù ·£´ý ¿þÀÌºê »ý¼º
+    // ë§¤ 0.25ì´ˆë§ˆë‹¤ ëžœë¤ ì›¨ì´ë¸Œ ìƒì„±
     static float t_base = 0.0f;
     if ((mTimer.TotalTime() - t_base) >= 0.25f)
     {
@@ -122,7 +122,7 @@ void MainApp::DrawScene()
     mTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        // ÁöÇü ±×¸®±â
+        // ì§€í˜• ê·¸ë¦¬ê¸°
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mLandVertexBuffer, &stride, &offset);
         md3dImmediateContext->IASetIndexBuffer(mLandIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
@@ -133,7 +133,7 @@ void MainApp::DrawScene()
         mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mGridIndexCount, 0, 0);
 
-        // ÆÄµµ ±×¸®±â
+        // íŒŒë„ ê·¸ë¦¬ê¸°
         md3dImmediateContext->RSSetState(mWireFrameRS);
 
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesVertexBuffer, &stride, &offset);
@@ -339,14 +339,14 @@ void MainApp::BuildFX()
 
 void MainApp::BuildVertexLayout()
 {
-    // Á¤Á¡ ¼ÎÀÌ´õ Á¤º¸
+    // ì •ì  ì…°ì´ë” ì •ë³´
     D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
     {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
-    // ÀÔ·Â ·¹ÀÌ¾Æ¿ô »ý¼º
+    // ìž…ë ¥ ë ˆì´ì•„ì›ƒ ìƒì„±
     D3DX11_PASS_DESC passDesc;
     mTech->GetPassByIndex(0)->GetDesc(&passDesc);
     HR(md3dDevice->CreateInputLayout(vertexDesc, 2, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &mInputLayout));
