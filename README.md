@@ -10,8 +10,10 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter6-box.png](resources/chapter6/box.PNG)
 ![chapter6-hills.png](resources/chapter6/hills.PNG)
 ![chapter6-shape.png](resources/chapter6/shapes.PNG)
-![chapter6-skull.png](resources/chapter6/skull.PNG)
-</details>
+![chapter6-skull.png](resources/chapter6/skull.PNG)</details>
+
+> __[Chapter7. Lighting](chapter7/)__<details><summary>Sample Pictures</summary>
+![chapter7-light.png](resources/chapter7/light.PNG)<details>
 
 ## Diffrence from a book.
 
