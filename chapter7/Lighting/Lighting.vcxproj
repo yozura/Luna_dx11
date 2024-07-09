@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\common;$(IncludePath)</IncludePath>
-    <LibraryPath>..\common;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\common;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\common;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\common;$(IncludePath)</IncludePath>
-    <LibraryPath>..\common;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\common;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\common;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,7 +92,9 @@
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)shaders"
-xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
+xcopy /Y "$(OutDir)shaders\LightHelper.cso" "$(ProjectDir)shaders\"
+xcopy /Y "$(OutDir)shaders\Lighting.cso" "$(ProjectDir)shaders\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,7 +115,9 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)shaders"
-xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
+xcopy /Y "$(OutDir)shaders\LightHelper.cso" "$(ProjectDir)shaders\"
+xcopy /Y "$(OutDir)shaders\Lighting.cso" "$(ProjectDir)shaders\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,6 +156,8 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     <ClCompile Include="..\..\common\LightHelper.cpp" />
     <ClCompile Include="..\..\common\MathHelper.cpp" />
     <ClCompile Include="..\..\common\Waves.cpp" />
+    <ClCompile Include="Lighting.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\D3DApp.h" />
@@ -162,6 +168,25 @@ xcopy /Y "$(OutDir)shaders\color.cso" "$(ProjectDir)shaders\"</Command>
     <ClInclude Include="..\..\common\LightHelper.h" />
     <ClInclude Include="..\..\common\MathHelper.h" />
     <ClInclude Include="..\..\common\Waves.h" />
+    <ClInclude Include="Lighting.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\LightHelper.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="shaders\Lighting.fx">
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
