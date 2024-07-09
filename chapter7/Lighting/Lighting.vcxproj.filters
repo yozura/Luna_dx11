@@ -13,14 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="common">
-      <UniqueIdentifier>{1cd4467a-6c5b-42a9-a525-d989627869ac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{4ba78d28-9450-405a-8ffa-34384304aa1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{8711553c-23ff-4ffb-8bfb-f7c08db55a32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\common\D3DApp.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -33,14 +36,17 @@
     <ClCompile Include="..\..\common\GeometryGenerator.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\LightHelper.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\common\MathHelper.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\common\Waves.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\LightHelper.cpp">
-      <Filter>common</Filter>
+    <ClCompile Include="Lighting.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,14 +65,25 @@
     <ClInclude Include="..\..\common\GeometryGenerator.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\LightHelper.h">
+      <Filter>common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\common\MathHelper.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\common\Waves.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\LightHelper.h">
-      <Filter>common</Filter>
+    <ClInclude Include="Lighting.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\LightHelper.fx">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\Lighting.fx">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
