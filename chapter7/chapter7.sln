@@ -5,6 +5,8 @@ VisualStudioVersion = 17.6.33717.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lighting", "Lighting\Lighting.vcxproj", "{FB8B583C-C19C-44F1-B741-10FE104B0E07}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LitSkull", "LitSkull\LitSkull.vcxproj", "{51A2E541-E1D8-4137-BDE3-9D40887E1B07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{FB8B583C-C19C-44F1-B741-10FE104B0E07}.Release|x64.Build.0 = Release|x64
 		{FB8B583C-C19C-44F1-B741-10FE104B0E07}.Release|x86.ActiveCfg = Release|Win32
 		{FB8B583C-C19C-44F1-B741-10FE104B0E07}.Release|x86.Build.0 = Release|Win32
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Debug|x64.ActiveCfg = Debug|x64
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Debug|x64.Build.0 = Debug|x64
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Debug|x86.ActiveCfg = Debug|Win32
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Debug|x86.Build.0 = Debug|Win32
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Release|x64.ActiveCfg = Release|x64
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Release|x64.Build.0 = Release|x64
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Release|x86.ActiveCfg = Release|Win32
+		{51A2E541-E1D8-4137-BDE3-9D40887E1B07}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
