@@ -164,8 +164,11 @@ void ComputeSpotLight(Material mat, SpotLight L, float3 pos, float3 normal, floa
         float3 v              = reflect(-lightVec, normal);
         float  specularFactor = pow(max(dot(v, toEye), 0.0f), mat.Specular.w);
         
-        diffuse  = diffuseFactor * mat.Diffuse * L.Diffuse;
-        specular = specularFactor * mat.Specular * L.Specular;
+        //diffuse  = diffuseFactor * mat.Diffuse * L.Diffuse;
+        //specular = specularFactor * mat.Specular * L.Specular;
+        
+        diffuse = ToonShadingForDiffuse(mat.Diffuse * L.Diffuse, diffuseFactor);
+        specular = ToonShadingForSpecular(mat.Specular * L.Specular, specularFactor);
     }
     
     float spot = pow(max(dot(-lightVec, L.Direction), 0.0f), L.Spot);
