@@ -7,7 +7,7 @@ cbuffer cbPerFrame
     
     float gFogStart;
     float gFogRange;
-    float gFogColor;
+    float4 gFogColor;
 };
 
 cbuffer cbPerObject

@@ -7,7 +7,7 @@ LitSkull::LitSkull(HINSTANCE hInstance)
     , mShapesVertexBuffer(0), mShapesIndexBuffer(0)
     , mSkullVertexBuffer(0), mSkullIndexBuffer(0)
     , mSkullIndexCount(0)
-    , mLightCount(3), mEyePosW(0.0f, 0.0f, 0.0f)
+    , mLightCount(1), mEyePosW(0.0f, 0.0f, 0.0f)
     , mTheta(1.5f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi)
     , mRadius(15.0f)
 {
