@@ -8,7 +8,7 @@ Lighting::Lighting(HINSTANCE hInstance)
     , mfxWorld(0), mfxWorldViewProj(0), mfxWorldInvTranspose(0)
     , mfxEyePosW(0), mfxDirLight(0), mfxPointLight(0), mfxSpotLight(0)
     , mInputLayout(0), mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f * MathHelper::Pi)
-    , mPhi(0.1f * MathHelper::Pi), mRadius(80.0f)
+    , mPhi(0.1f * MathHelper::Pi), mRadius(200.0f)
 {
     mMainWndCaption = L"Lighting";
 
@@ -25,8 +25,8 @@ Lighting::Lighting(HINSTANCE hInstance)
     XMStoreFloat4x4(&mWavesWorld, wavesOffset);
 
     mDirLight.Ambient   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLight.Diffuse   = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mDirLight.Specular  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mDirLight.Diffuse   = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+    mDirLight.Specular  = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
     mDirLight.Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
 
     mPointLight.Ambient  = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
@@ -36,19 +36,19 @@ Lighting::Lighting(HINSTANCE hInstance)
     mPointLight.Range    = 25.0f;
 
     mSpotLight.Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mSpotLight.Diffuse  = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
-    mSpotLight.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mSpotLight.Diffuse  = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.5f);
+    mSpotLight.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 0.5f);
     mSpotLight.Att      = XMFLOAT3(1.0f, 0.0f, 0.0f);
     mSpotLight.Spot     = 96.0f;
     mSpotLight.Range    = 10000.0f;
 
     mLandMat.Ambient  = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
     mLandMat.Diffuse  = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-    mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+    mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 256.0f);
 
     mWavesMat.Ambient  = XMFLOAT4(0.137f, 0.42f, 0.556f, 1.0f);
     mWavesMat.Diffuse  = XMFLOAT4(0.137f, 0.42f, 0.556f, 1.0f);
-    mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 96.0f);
+    mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 256.0f);
 }
 
 Lighting::~Lighting()
@@ -126,8 +126,15 @@ void Lighting::UpdateScene(float dt)
 
     md3dImmediateContext->Unmap(mWavesVertexBuffer, 0);
 
-    mPointLight.Position.x = 70.0f * cosf(0.2f * mTimer.TotalTime());
-    mPointLight.Position.z = 70.0f * sinf(0.2f * mTimer.TotalTime());
+    if (GetAsyncKeyState('1') & 0x8000)
+        mSpotLight.Spot = 1.0f;
+    if (GetAsyncKeyState('2') & 0x8000)
+        mSpotLight.Spot = 96.0f;
+    if (GetAsyncKeyState('3') & 0x8000)
+        mSpotLight.Spot = 512.0f;
+
+    mPointLight.Position.x = 70.0f * cosf(0.4f * mTimer.TotalTime());
+    mPointLight.Position.z = 70.0f * sinf(0.4f * mTimer.TotalTime());
     mPointLight.Position.y = MathHelper::Max(GetHillHeight(mPointLight.Position.x, mPointLight.Position.z), -3.0f) + 10.0f;
 
     mSpotLight.Position = mEyePosW;

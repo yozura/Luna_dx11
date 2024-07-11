@@ -13,7 +13,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter6-skull.png](resources/chapter6/skull.PNG)</details>
 
 > __[Chapter7. Lighting](chapter7/)__<details><summary>Sample Pictures</summary>
-![chapter7-light.png](resources/chapter7/light.PNG)<details>
+![chapter7-light.png](resources/chapter7/light.PNG)
+![chapter7-toonshading.png](resources/chapter7/toonshading.png)</details>
 
 ## Diffrence from a book.
 

@@ -77,6 +77,7 @@ private:
 	float mRadius;
 
 	POINT mLastMousePos;
+
 };
 
 #endif /* LIGHTING_H */
