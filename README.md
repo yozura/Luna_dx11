@@ -6,17 +6,23 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 
 > __[Chapter4. Direct3D Initialization](chapter4/)__
 
-> __[Chapter6. Drawings in Direct3D](chapter6/)__<details><summary>Sample Pictures</summary>
+> __[Chapter6. Drawings in Direct3D](chapter6/)__<details><summary>Demo Pictures</summary>
 ![chapter6-box.png](resources/chapter6/box.PNG)
 ![chapter6-hills.png](resources/chapter6/hills.PNG)
 ![chapter6-shape.png](resources/chapter6/shapes.PNG)
 ![chapter6-skull.png](resources/chapter6/skull.PNG)</details>
 
-> __[Chapter7. Lighting](chapter7/)__<details><summary>Sample Pictures</summary>
+> __[Chapter7. Lighting](chapter7/)__<details><summary>Demo Pictures</summary>
 ![chapter7-light.png](resources/chapter7/light.PNG)
 ![chapter7-toonshading.png](resources/chapter7/toonshading.png)</details>
+
+> __[Chapter8. Texturing](chapter8/)__<details><summary>Demo Pictures</summary>
+![chapter8-crate.png](resources/chapter8/crate.PNG)</details>
 
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
 The `Effects11.lib` library provided in the book is  built for Visual Studio 2010 and is no longer supported in later versions. If you want to use `Effects11.lib` with a higher version of Visual Studio, try building it from [this repository](https://github.com/microsoft/FX11). I also use Visual Studio 2022, and it has been extremely helpful.
+
+### 2. `DirectXTex.lib`
+According to MSDN, `D3DX11CreateShaderResourceViewFromFile` function and the D3DX utility library are deprecated in Windows 8 and later versions. To replace them, build the [DirectXTex](https://github.com/microsoft/DirectXTex) project and link it as a new library.
