@@ -4,7 +4,7 @@ using namespace DirectX;
 
 Crate::Crate(HINSTANCE hInstance)
     : D3DApp(hInstance), mBoxVertexBuffer(0), mBoxIndexBuffer(0), mDiffuseMapSRV(0)
-    , mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.3f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(2.5f)
+    , mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.3f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(2.0f)
 {
     mMainWndCaption = L"Crate";
 
@@ -30,6 +30,9 @@ Crate::Crate(HINSTANCE hInstance)
     mBoxMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 16.0f);
+
+    XMMATRIX boxTexScale = XMMatrixScaling(3.0f, 3.0f, 3.0f);
+    XMStoreFloat4x4(&mTexTransform, boxTexScale);
 }
 
 Crate::~Crate()
