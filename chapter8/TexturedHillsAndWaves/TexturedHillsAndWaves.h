@@ -7,6 +7,7 @@
 #include "MathHelper.h"
 #include "Vertex.h"
 #include "Effects.h"
+#include "Waves.h"
 
 class TexturedHillsAndWaves : public D3DApp
 {
@@ -24,25 +25,37 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
-	void BuildGeometryBuffers();
+	float GetHillHeight(float x, float z) const;
+	DirectX::XMFLOAT3 GetHillNormal(float x, float z) const;
+	void BuildLandGeometryBuffers();
+	void BuildWaveGeometryBuffers();
 
 private:
-	ID3D11Buffer* mBoxVertexBuffer;
-	ID3D11Buffer* mBoxIndexBuffer;
+	ID3D11Buffer* mLandVertexBuffer;
+	ID3D11Buffer* mLandIndexBuffer;
+	
+	ID3D11Buffer* mWavesVertexBuffer;
+	ID3D11Buffer* mWavesIndexBuffer;
 
-	ID3D11ShaderResourceView* mDiffuseMapSRV;
+	ID3D11ShaderResourceView* mGrassMapSRV;
+	ID3D11ShaderResourceView* mWaterMapSRV;
+
+	Waves mWaves;
 
 	DirectionalLight mDirLights[3];
-	Material mBoxMat;
+	Material mLandMat;
+	Material mWavesMat;
 
-	DirectX::XMFLOAT4X4 mTexTransform;
-	DirectX::XMFLOAT4X4 mBoxWorld;
+	DirectX::XMFLOAT4X4 mGrassTexTransform;
+	DirectX::XMFLOAT4X4 mWaterTexTransform;
+	DirectX::XMFLOAT4X4 mLandWorld;
+	DirectX::XMFLOAT4X4 mWavesWorld;
+
 	DirectX::XMFLOAT4X4 mView;
 	DirectX::XMFLOAT4X4 mProj;
 
-	int mBoxVertexOffset;
-	UINT mBoxIndexOffset;
-	UINT mBoxIndexCount;
+	UINT mLandIndexCount;
+	DirectX::XMFLOAT2 mWaterTexOffset;
 
 	DirectX::XMFLOAT3 mEyePosW;
 
