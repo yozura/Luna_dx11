@@ -20,6 +20,7 @@ cbuffer cbPerObject
 };
 
 Texture2D gDiffuseMap;
+Texture2D gDiffuseMap2;
 
 SamplerState samAnisotropic
 {
@@ -73,7 +74,13 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexture) : SV
     float4 texColor = float4(1, 1, 1, 1);
     if (gUseTexture)
     {
-        texColor = gDiffuseMap.Sample(samAnisotropic, pin.Tex);
+        float4 flare;
+        float4 alpha;
+        
+        flare = gDiffuseMap.Sample(samAnisotropic, pin.Tex);
+        alpha = gDiffuseMap2.Sample(samAnisotropic, pin.Tex);
+     
+        texColor = flare * alpha;
     }
     
     float4 litColor = texColor;

@@ -40,6 +40,7 @@ Crate::~Crate()
     ReleaseCOM(mBoxVertexBuffer);
     ReleaseCOM(mBoxIndexBuffer);
     ReleaseCOM(mDiffuseMapSRV);
+    ReleaseCOM(mDiffuseMapSRV2);
 
     Effects::DestroyAll();
     InputLayouts::DestroyAll();
@@ -53,9 +54,13 @@ bool Crate::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
-    ScratchImage texture;
-    HR(LoadFromDDSFile(L"textures/mipmaps.dds", DDS_FLAGS_NONE, nullptr, texture));
-    HR(CreateShaderResourceView(md3dDevice, texture.GetImages(), texture.GetImageCount(), texture.GetMetadata(), &mDiffuseMapSRV));
+    ScratchImage flare;
+    HR(LoadFromDDSFile(L"textures/flare.dds", DDS_FLAGS_NONE, nullptr, flare));
+    HR(CreateShaderResourceView(md3dDevice, flare.GetImages(), flare.GetImageCount(), flare.GetMetadata(), &mDiffuseMapSRV));
+    
+    ScratchImage alpha;
+    HR(LoadFromDDSFile(L"textures/alpha.dds", DDS_FLAGS_NONE, nullptr, alpha));
+    HR(CreateShaderResourceView(md3dDevice, alpha.GetImages(), alpha.GetImageCount(), alpha.GetMetadata(), &mDiffuseMapSRV2));
 
     BuildGeometryBuffers();
 
@@ -123,6 +128,7 @@ void Crate::DrawScene()
         Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
         Effects::BasicFX->SetMaterial(mBoxMat);
         Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+        Effects::BasicFX->SetDiffuseMap2(mDiffuseMapSRV2);
 
         activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
