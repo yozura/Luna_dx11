@@ -43,6 +43,8 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
     EyePosW           = mFX->GetVariableByName("gEyePosW")->AsMatrix();
     DirLights         = mFX->GetVariableByName("gDirLights");
     Mat               = mFX->GetVariableByName("gMaterial");
+
+    DeltaTime         = mFX->GetVariableByName("gDeltaTime")->AsScalar();
     
     DiffuseMap        = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
     DiffuseMap2       = mFX->GetVariableByName("gDiffuseMap2")->AsShaderResource();

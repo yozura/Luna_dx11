@@ -8,6 +8,8 @@ cbuffer cbPerFrame
     float gFogStart;
     float gFogRange;
     float4 gFogColor;
+    
+    float gDeltaTime;
 };
 
 cbuffer cbPerObject
@@ -56,7 +58,17 @@ VertexOut VS(VertexIn vin)
     vout.PosW    = mul(newPosW, gWorld).xyz;
     vout.NormalW = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
     vout.PosH    = mul(newPosW, gWorldViewProj);
-    vout.Tex     = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
+    //vout.Tex     = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
+    
+    float  cosAngle = cos(gDeltaTime);
+    float  sinAngle = sin(gDeltaTime);
+    float2 centeredTex = vin.Tex - float2(0.5f, 0.5f);
+    float2 rotatedTex;
+    rotatedTex.x = centeredTex.x * cosAngle - centeredTex.y * sinAngle;
+    rotatedTex.y = centeredTex.x * sinAngle + centeredTex.y * cosAngle;
+    rotatedTex += float2(0.5f, 0.5f);
+    
+    vout.Tex = mul(float4(rotatedTex, 0.0f, 1.0f), gTexTransform).xy;
     
     return vout;
 }
@@ -74,11 +86,8 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexture) : SV
     float4 texColor = float4(1, 1, 1, 1);
     if (gUseTexture)
     {
-        float4 flare;
-        float4 alpha;
-        
-        flare = gDiffuseMap.Sample(samAnisotropic, pin.Tex);
-        alpha = gDiffuseMap2.Sample(samAnisotropic, pin.Tex);
+        float4 flare = gDiffuseMap.Sample(samAnisotropic, pin.Tex);
+        float4 alpha = gDiffuseMap2.Sample(samAnisotropic, pin.Tex);
      
         texColor = flare * alpha;
     }

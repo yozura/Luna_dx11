@@ -30,9 +30,6 @@ Crate::Crate(HINSTANCE hInstance)
     mBoxMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 16.0f);
-
-    XMMATRIX boxTexScale = XMMatrixScaling(3.0f, 3.0f, 3.0f);
-    XMStoreFloat4x4(&mTexTransform, boxTexScale);
 }
 
 Crate::~Crate()
@@ -89,6 +86,11 @@ void Crate::UpdateScene(float dt)
 
     XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, V);
+
+    static float time = 0.0f;
+    time += 2.0f * dt;
+
+    Effects::BasicFX->SetDeltaTime(time);
 }
 
 void Crate::DrawScene()
