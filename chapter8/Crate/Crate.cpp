@@ -54,7 +54,7 @@ bool Crate::Init()
     InputLayouts::InitAll(md3dDevice);
 
     ScratchImage texture;
-    HR(LoadFromDDSFile(L"textures/mipmap.dds", DDS_FLAGS_NONE, nullptr, texture));
+    HR(LoadFromDDSFile(L"textures/mipmaps.dds", DDS_FLAGS_NONE, nullptr, texture));
     HR(CreateShaderResourceView(md3dDevice, texture.GetImages(), texture.GetImageCount(), texture.GetMetadata(), &mDiffuseMapSRV));
 
     BuildGeometryBuffers();
