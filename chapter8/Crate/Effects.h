@@ -37,6 +37,7 @@ public:
     void SetDeltaTime(float dt)                        { DeltaTime->SetFloat(dt); }
     void SetDiffuseMap(ID3D11ShaderResourceView* tex)  { DiffuseMap->SetResource(tex); }
     void SetDiffuseMap2(ID3D11ShaderResourceView* tex) { DiffuseMap2->SetResource(tex); }
+    void SetFireAnim(ID3D11ShaderResourceView* tex)    { FireAnim->SetResource(tex); }
 
     ID3DX11EffectTechnique* Light1Tech;
     ID3DX11EffectTechnique* Light2Tech;
@@ -59,6 +60,7 @@ public:
 
     ID3DX11EffectShaderResourceVariable* DiffuseMap;
     ID3DX11EffectShaderResourceVariable* DiffuseMap2;
+    ID3DX11EffectShaderResourceVariable* FireAnim;
 };
 #pragma endregion
 

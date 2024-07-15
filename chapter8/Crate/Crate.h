@@ -24,6 +24,7 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
+	void LoadFireAnimation();
 	void BuildGeometryBuffers();
 
 private:
@@ -32,6 +33,7 @@ private:
 
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
 	ID3D11ShaderResourceView* mDiffuseMapSRV2;
+	ID3D11ShaderResourceView* mFireAnim[120];
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
@@ -44,6 +46,7 @@ private:
 	int mBoxVertexOffset;
 	UINT mBoxIndexOffset;
 	UINT mBoxIndexCount;
+	UINT mFireAnimIndex;
 
 	DirectX::XMFLOAT3 mEyePosW;
 
