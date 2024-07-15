@@ -27,14 +27,17 @@ public:
     BasicEffect(ID3D11Device* device, const std::wstring& filename);
     ~BasicEffect();
 
-    void SetWorldViewProj(DirectX::CXMMATRIX M)       { WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
-    void SetWorld(DirectX::CXMMATRIX M)               { World->SetMatrix(reinterpret_cast<const float*>(&M)); }
-    void SetWorldInvTranspose(DirectX::CXMMATRIX M)   { WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
-    void SetTexTransform(DirectX::CXMMATRIX M)        { TexTransform->SetMatrix(reinterpret_cast<const float*>(&M)); }
-    void SetEyePosW(const DirectX::XMFLOAT3& v)       { EyePosW->SetRawValue(&v, 0, sizeof(DirectX::XMFLOAT3)); }
-    void SetDirLights(const DirectionalLight* lights) { DirLights->SetRawValue(lights, 0, sizeof(DirectionalLight)); }
-    void SetMaterial(const Material& mat)             { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
-    void SetDiffuseMap(ID3D11ShaderResourceView* tex) { DiffuseMap->SetResource(tex); }
+    void SetWorldViewProj(DirectX::CXMMATRIX M)        { WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
+    void SetWorld(DirectX::CXMMATRIX M)                { World->SetMatrix(reinterpret_cast<const float*>(&M)); }
+    void SetWorldInvTranspose(DirectX::CXMMATRIX M)    { WorldInvTranspose->SetMatrix(reinterpret_cast<const float*>(&M)); }
+    void SetTexTransform(DirectX::CXMMATRIX M)         { TexTransform->SetMatrix(reinterpret_cast<const float*>(&M)); }
+    void SetEyePosW(const DirectX::XMFLOAT3& v)        { EyePosW->SetRawValue(&v, 0, sizeof(DirectX::XMFLOAT3)); }
+    void SetDirLights(const DirectionalLight* lights)  { DirLights->SetRawValue(lights, 0, sizeof(DirectionalLight)); }
+    void SetMaterial(const Material& mat)              { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
+    void SetDeltaTime(float dt)                        { DeltaTime->SetFloat(dt); }
+    void SetDiffuseMap(ID3D11ShaderResourceView* tex)  { DiffuseMap->SetResource(tex); }
+    void SetDiffuseMap2(ID3D11ShaderResourceView* tex) { DiffuseMap2->SetResource(tex); }
+    void SetFireAnim(ID3D11ShaderResourceView* tex)    { FireAnim->SetResource(tex); }
 
     ID3DX11EffectTechnique* Light1Tech;
     ID3DX11EffectTechnique* Light2Tech;
@@ -53,7 +56,11 @@ public:
     ID3DX11EffectVariable* DirLights;
     ID3DX11EffectVariable* Mat;
 
+    ID3DX11EffectScalarVariable* DeltaTime;
+
     ID3DX11EffectShaderResourceVariable* DiffuseMap;
+    ID3DX11EffectShaderResourceVariable* DiffuseMap2;
+    ID3DX11EffectShaderResourceVariable* FireAnim;
 };
 #pragma endregion
 

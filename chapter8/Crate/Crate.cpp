@@ -3,8 +3,8 @@
 using namespace DirectX;
 
 Crate::Crate(HINSTANCE hInstance)
-    : D3DApp(hInstance), mBoxVertexBuffer(0), mBoxIndexBuffer(0), mDiffuseMapSRV(0)
-    , mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.3f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(2.5f)
+    : D3DApp(hInstance), mBoxVertexBuffer(0), mBoxIndexBuffer(0), mDiffuseMapSRV(0), mFireAnimIndex(0)
+    , mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.3f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi), mRadius(2.0f)
 {
     mMainWndCaption = L"Crate";
 
@@ -37,6 +37,10 @@ Crate::~Crate()
     ReleaseCOM(mBoxVertexBuffer);
     ReleaseCOM(mBoxIndexBuffer);
     ReleaseCOM(mDiffuseMapSRV);
+    ReleaseCOM(mDiffuseMapSRV2);
+    
+    for (UINT i = 0; i < 120; ++i)
+        ReleaseCOM(mFireAnim[i]);
 
     Effects::DestroyAll();
     InputLayouts::DestroyAll();
@@ -50,9 +54,15 @@ bool Crate::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
-    ScratchImage texture;
-    HR(LoadFromDDSFile(L"textures/WoodCrate01.dds", DDS_FLAGS_NONE, nullptr, texture));
-    HR(CreateShaderResourceView(md3dDevice, texture.GetImages(), texture.GetImageCount(), texture.GetMetadata(), &mDiffuseMapSRV));
+    ScratchImage flare;
+    HR(LoadFromDDSFile(L"textures/flare.dds", DDS_FLAGS_NONE, nullptr, flare));
+    HR(CreateShaderResourceView(md3dDevice, flare.GetImages(), flare.GetImageCount(), flare.GetMetadata(), &mDiffuseMapSRV));
+    
+    ScratchImage alpha;
+    HR(LoadFromDDSFile(L"textures/alpha.dds", DDS_FLAGS_NONE, nullptr, alpha));
+    HR(CreateShaderResourceView(md3dDevice, alpha.GetImages(), alpha.GetImageCount(), alpha.GetMetadata(), &mDiffuseMapSRV2));
+
+    LoadFireAnimation();
 
     BuildGeometryBuffers();
 
@@ -81,6 +91,20 @@ void Crate::UpdateScene(float dt)
 
     XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, V);
+
+    static float accTime = 0.0f;
+    accTime += dt * 0.5f;
+
+    Effects::BasicFX->SetDeltaTime(accTime);
+
+    if (accTime > 0.01f)
+    {
+        ++mFireAnimIndex;
+        if (mFireAnimIndex == 120)
+            mFireAnimIndex = 0;
+
+        accTime = 0;
+    }
 }
 
 void Crate::DrawScene()
@@ -119,7 +143,7 @@ void Crate::DrawScene()
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
         Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
         Effects::BasicFX->SetMaterial(mBoxMat);
-        Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+        Effects::BasicFX->SetFireAnim(mFireAnim[mFireAnimIndex]);
 
         activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
@@ -171,6 +195,24 @@ void Crate::OnMouseMove(WPARAM btnState, int x, int y)
 
     mLastMousePos.x = x;
     mLastMousePos.y = y;
+}
+
+void Crate::LoadFireAnimation()
+{
+    std::wstring base = L"textures/FireAnim/Fire";
+    std::wstring ext  = L".bmp";
+    ScratchImage texture;
+
+    for (UINT i = 1; i <= 120; ++i)
+    {
+        std::wstring number = std::to_wstring(i);
+        while (number.length() < 3)
+            number = L"0" + number;
+
+        std::wstring filename = base + number + ext;
+        HR(LoadFromWICFile(filename.c_str(), WIC_FLAGS_NONE, nullptr, texture));
+        HR(CreateShaderResourceView(md3dDevice, texture.GetImages(), texture.GetImageCount(), texture.GetMetadata(), &mFireAnim[i - 1]));
+    }
 }
 
 void Crate::BuildGeometryBuffers()

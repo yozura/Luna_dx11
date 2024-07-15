@@ -34,6 +34,7 @@ struct VertexIn
 {
     float3 PosL    : POSITION;
     float3 NormalL : NORMAL;
+    float2 Tex     : TEXCOORD;
 };
 
 struct VertexOut
@@ -41,6 +42,7 @@ struct VertexOut
     float4 PosH    : SV_POSITION;
     float3 PosW    : POSITION;
     float3 NormalW : NORMAL;
+    float2 Tex     : TEXCOORD;
 };
 
 VertexOut VS(VertexIn vin)
@@ -53,6 +55,7 @@ VertexOut VS(VertexIn vin)
     vout.PosW    = mul(newPosW, gWorld).xyz;
     vout.NormalW = mul(vin.NormalL, (float3x3)gWorldInvTranspose);
     vout.PosH    = mul(newPosW, gWorldViewProj);
+    vout.Tex     = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
     
     return vout;
 }
@@ -70,6 +73,8 @@ float4 PS(VertexOut pin, uniform int gLightCount) : SV_Target
     float4 ambient  = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 diffuse  = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 texColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    texColor = gDiffuseMap.Sample(samAnisotropic, pin.Tex);
     
     [unroll]
     for (int i = 0; i < gLightCount; ++i)
@@ -82,9 +87,9 @@ float4 PS(VertexOut pin, uniform int gLightCount) : SV_Target
         specular += S;
     }
     
-    float4 litColor = ambient + diffuse + specular;
+    float4 litColor = texColor * (ambient + diffuse) + specular;
     
-    litColor.a = gMaterial.Diffuse.a;
+    litColor.a = gMaterial.Diffuse.a * texColor.a;
 
     return litColor;
 }

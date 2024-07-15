@@ -18,7 +18,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 
 > __[Chapter8. Texturing](chapter8/)__<details><summary>Demo Pictures</summary>
 ![chapter8-crate.png](resources/chapter8/crate.PNG)  
-![chapter8-thaw.png](resources/chapter8/thaw.PNG)</details>
+![chapter8-thaw.png](resources/chapter8/thaw.PNG)
+![chapter8-mipmaps.gif](resources/chapter8/mipmaps.gif)</details>
 
 ## Diffrence from a book.
 
