@@ -54,6 +54,9 @@
     <ClInclude Include="..\..\common\Waves.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\common\DirectXTex.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vertex.cpp">
@@ -97,5 +100,10 @@
     <FxCompile Include="shaders\LightHelper.fx">
       <Filter>shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\common\DirectXTex.inl">
+      <Filter>common</Filter>
+    </None>
   </ItemGroup>
 </Project>

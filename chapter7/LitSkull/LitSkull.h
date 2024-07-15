@@ -46,9 +46,12 @@ private:
 	DirectX::XMFLOAT4X4 mBoxWorld;
 	DirectX::XMFLOAT4X4 mGridWorld;
 	DirectX::XMFLOAT4X4 mSkullWorld;
+	DirectX::XMFLOAT4X4 mTexTransform;
 
 	DirectX::XMFLOAT4X4 mView;
 	DirectX::XMFLOAT4X4 mProj;
+
+	ID3D11ShaderResourceView* mDiffuseMapSRV;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
