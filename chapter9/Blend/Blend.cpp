@@ -191,8 +191,8 @@ void Blend::DrawScene()
     Effects::BasicFX->SetDirLights(mDirLights);
     Effects::BasicFX->SetEyePosW(mEyePosW);
     Effects::BasicFX->SetFogColor(Colors::Silver);
-    Effects::BasicFX->SetFogStart(15.0f);
-    Effects::BasicFX->SetFogRange(175.0f);
+    Effects::BasicFX->SetFogStart(10.0f);
+    Effects::BasicFX->SetFogRange(200.0f);
 
     ID3DX11EffectTechnique* boxTech          = 0;
     ID3DX11EffectTechnique* landAndWavesTech = 0;
@@ -241,7 +241,6 @@ void Blend::DrawScene()
         md3dImmediateContext->RSSetState(0);
     }
 
-
     // Draw the hills and waves
     landAndWavesTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
@@ -261,8 +260,12 @@ void Blend::DrawScene()
         Effects::BasicFX->SetMaterial(mLandMat);
         Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
 
+        md3dImmediateContext->OMSetBlendState(RenderStates::DiscardRedGreenBS, blendFactor, 0xffffffff);
         landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
+
+        // Restore default Blend State
+        md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 
         // Waves
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesVertexBuffer, &stride, &offset);

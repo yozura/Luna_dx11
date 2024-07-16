@@ -5,6 +5,7 @@ ID3D11RasterizerState* RenderStates::NoCullRS     = 0;
 
 ID3D11BlendState* RenderStates::AlphaToCoverageBS = 0;
 ID3D11BlendState* RenderStates::TransparentBS     = 0;
+ID3D11BlendState* RenderStates::DiscardRedGreenBS = 0;
 
 void RenderStates::InitAll(ID3D11Device* device)
 {
@@ -48,6 +49,19 @@ void RenderStates::InitAll(ID3D11Device* device)
     bd.RenderTarget[0].BlendOpAlpha   = D3D11_BLEND_OP_ADD;
     bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     HR(device->CreateBlendState(&bd, &TransparentBS));
+
+    // DiscardRedGreenBS
+    ZeroMemory(&bd, sizeof(D3D11_BLEND_DESC));
+    bd.AlphaToCoverageEnable          = false;
+    bd.IndependentBlendEnable         = false;
+    bd.RenderTarget[0].SrcBlend       = D3D11_BLEND_SRC_COLOR;
+    bd.RenderTarget[0].DestBlend      = D3D11_BLEND_INV_SRC_COLOR;
+    bd.RenderTarget[0].BlendOp        = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].SrcBlendAlpha  = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+    bd.RenderTarget[0].BlendOpAlpha   = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_BLUE | D3D11_COLOR_WRITE_ENABLE_ALPHA;
+    HR(device->CreateBlendState(&bd, &DiscardRedGreenBS));
 }
 
 void RenderStates::DestroyAll()
@@ -56,4 +70,5 @@ void RenderStates::DestroyAll()
     ReleaseCOM(NoCullRS);
     ReleaseCOM(AlphaToCoverageBS);
     ReleaseCOM(TransparentBS);
+    ReleaseCOM(DiscardRedGreenBS);
 }
