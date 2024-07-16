@@ -12,7 +12,7 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Basic32[3] =
 #pragma endregion
 
 #pragma region InputLayouts
-ID3D11InputLayout* InputLayouts::Basic32   = 0;
+ID3D11InputLayout* InputLayouts::Basic32 = 0;
 
 void InputLayouts::InitAll(ID3D11Device* device)
 {

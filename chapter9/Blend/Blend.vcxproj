@@ -175,6 +175,7 @@ xcopy /Y "$(OutDir)shaders\Basic.cso" "$(ProjectDir)shaders\"</Command>
     <ClCompile Include="Effects.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Blend.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +190,7 @@ xcopy /Y "$(OutDir)shaders\Basic.cso" "$(ProjectDir)shaders\"</Command>
     <ClInclude Include="..\..\common\Waves.h" />
     <ClInclude Include="Effects.h" />
     <ClInclude Include="Blend.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

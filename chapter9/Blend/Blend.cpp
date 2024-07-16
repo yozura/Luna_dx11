@@ -4,10 +4,13 @@ using namespace DirectX;
 
 Blend::Blend(HINSTANCE hInstance)
     : D3DApp(hInstance), mLandVertexBuffer(0), mWavesVertexBuffer(0), mLandIndexBuffer(0), mWavesIndexBuffer(0)
-    , mLandIndexCount(0), mEyePosW(0.0f, 0.0f, 0.0f), mWaterTexOffset(0.0f, 0.0f), mGrassMapSRV(0), mWaterMapSRV(0)
+    , mBoxVertexBuffer(0), mBoxIndexBuffer(0), mBoxMapSRV(0), mGrassMapSRV(0), mWaterMapSRV(0)
+    , mLandIndexCount(0), mEyePosW(0.0f, 0.0f, 0.0f), mWaterTexOffset(0.0f, 0.0f)
     , mTheta(1.3f * MathHelper::Pi), mPhi(0.4f * MathHelper::Pi), mRadius(120.0f)
+    , mRenderOptions(RenderOptions::TexturesAndFog)
 {
     mMainWndCaption = L"Blend";
+    mEnable4xMsaa   = false;
 
     mLastMousePos.x = 0;
     mLastMousePos.y = 0;
@@ -17,6 +20,10 @@ Blend::Blend(HINSTANCE hInstance)
     XMStoreFloat4x4(&mWavesWorld, I);
     XMStoreFloat4x4(&mView, I);
     XMStoreFloat4x4(&mProj, I);
+
+    XMMATRIX boxScale  = XMMatrixScaling(15.0f, 15.0f, 15.0f);
+    XMMATRIX boxOffset = XMMatrixTranslation(8.0f, 5.0f, -15.0f);
+    XMStoreFloat4x4(&mBoxWorld, boxScale * boxOffset);
 
     XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
     XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
@@ -41,8 +48,12 @@ Blend::Blend(HINSTANCE hInstance)
     mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 
     mWavesMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mWavesMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mWavesMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
     mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 32.0f);
+
+    mBoxMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mBoxMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mBoxMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
 }
 
 Blend::~Blend()
@@ -51,11 +62,15 @@ Blend::~Blend()
     ReleaseCOM(mLandIndexBuffer);
     ReleaseCOM(mWavesVertexBuffer);
     ReleaseCOM(mWavesIndexBuffer);
+    ReleaseCOM(mBoxVertexBuffer);
+    ReleaseCOM(mBoxIndexBuffer);
     ReleaseCOM(mGrassMapSRV);
     ReleaseCOM(mWaterMapSRV);
+    ReleaseCOM(mBoxMapSRV);
 
     Effects::DestroyAll();
     InputLayouts::DestroyAll();
+    RenderStates::DestroyAll();
 }
 
 bool Blend::Init()
@@ -67,6 +82,7 @@ bool Blend::Init()
 
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
+    RenderStates::InitAll(md3dDevice);
 
     ScratchImage grass;
     HR(LoadFromDDSFile(L"textures/grass.dds", DDS_FLAGS_NONE, nullptr, grass));
@@ -76,8 +92,13 @@ bool Blend::Init()
     HR(LoadFromDDSFile(L"textures/water2.dds", DDS_FLAGS_NONE, nullptr, water));
     HR(CreateShaderResourceView(md3dDevice, water.GetImages(), water.GetImageCount(), water.GetMetadata(), &mWaterMapSRV));
 
+    ScratchImage fence;
+    HR(LoadFromDDSFile(L"textures/WireFence.dds", DDS_FLAGS_NONE, nullptr, fence));
+    HR(CreateShaderResourceView(md3dDevice, fence.GetImages(), fence.GetImageCount(), fence.GetMetadata(), &mBoxMapSRV));
+
     BuildLandGeometryBuffers();
     BuildWaveGeometryBuffers();
+    BuildCrateGeometryBuffers();
 
     return true;
 }
@@ -136,21 +157,30 @@ void Blend::UpdateScene(float dt)
 
     XMMATRIX wavesScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
 
-    mWaterTexOffset.y = 0.05f * dt;
-    mWaterTexOffset.x = 0.1f  * dt;
+    mWaterTexOffset.y += 0.05f * dt;
+    mWaterTexOffset.x += 0.1f  * dt;
 
     XMMATRIX wavesOffset = XMMatrixTranslation(mWaterTexOffset.x, mWaterTexOffset.y, 0.0f);
 
     XMStoreFloat4x4(&mWaterTexTransform, wavesScale * wavesOffset);
+
+    if (GetAsyncKeyState('1') & 0x8000)
+        mRenderOptions = RenderOptions::Lighting;
+    if (GetAsyncKeyState('2') & 0x8000)
+        mRenderOptions = RenderOptions::Textures;
+    if (GetAsyncKeyState('3') & 0x8000)
+        mRenderOptions = RenderOptions::TexturesAndFog;
 }
 
 void Blend::DrawScene()
 {
-    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Aquamarine));
+    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     
     md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     UINT stride = sizeof(Vertex::Basic32);
     UINT offset = 0;
@@ -160,11 +190,60 @@ void Blend::DrawScene()
     
     Effects::BasicFX->SetDirLights(mDirLights);
     Effects::BasicFX->SetEyePosW(mEyePosW);
+    Effects::BasicFX->SetFogColor(Colors::Silver);
+    Effects::BasicFX->SetFogStart(15.0f);
+    Effects::BasicFX->SetFogRange(175.0f);
 
-    ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light3TexTech;
+    ID3DX11EffectTechnique* boxTech          = 0;
+    ID3DX11EffectTechnique* landAndWavesTech = 0;
+
+    switch (mRenderOptions)
+    {
+    case RenderOptions::Lighting:
+        boxTech          = Effects::BasicFX->Light3Tech;
+        landAndWavesTech = Effects::BasicFX->Light3Tech;
+        break;
+    case RenderOptions::Textures:
+        boxTech          = Effects::BasicFX->Light3TexAlphaClipTech;
+        landAndWavesTech = Effects::BasicFX->Light3TexTech;
+        break;
+    case RenderOptions::TexturesAndFog:
+        boxTech          = Effects::BasicFX->Light3TexAlphaClipFogTech;
+        landAndWavesTech = Effects::BasicFX->Light3TexFogTech;
+        break;
+    }
 
     D3DX11_TECHNIQUE_DESC techDesc;
-    activeTech->GetDesc(&techDesc);
+
+    // Draw the box with alpha clipping
+    boxTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoxVertexBuffer, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mBoxIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+        XMMATRIX world = XMLoadFloat4x4(&mBoxWorld);
+        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+        XMMATRIX worldViewProj = world * view * proj;
+
+        Effects::BasicFX->SetWorld(world);
+        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+        Effects::BasicFX->SetWorldViewProj(worldViewProj);
+        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+        Effects::BasicFX->SetMaterial(mBoxMat);
+        Effects::BasicFX->SetDiffuseMap(mBoxMapSRV);
+        
+        md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+        boxTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(36, 0, 0);
+
+        // Restore default Rasterizer State
+        md3dImmediateContext->RSSetState(0);
+    }
+
+
+    // Draw the hills and waves
+    landAndWavesTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mLandVertexBuffer, &stride, &offset);
@@ -182,7 +261,7 @@ void Blend::DrawScene()
         Effects::BasicFX->SetMaterial(mLandMat);
         Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
 
-        activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
 
         // Waves
@@ -200,8 +279,12 @@ void Blend::DrawScene()
         Effects::BasicFX->SetMaterial(mWavesMat);
         Effects::BasicFX->SetDiffuseMap(mWaterMapSRV);
 
-        activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
+        landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
+
+        // Restore default Blend State
+        md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
     }
 
     HR(mSwapChain->Present(0, 0));
@@ -238,14 +321,14 @@ void Blend::OnMouseMove(WPARAM btnState, int x, int y)
     else if ((btnState & MK_RBUTTON) != 0)
     {
         // Make each pixel correspond to 0.01 unit in the scene.
-        float dx = 0.05f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.05f * static_cast<float>(y - mLastMousePos.y);
+        float dx = 0.1f * static_cast<float>(x - mLastMousePos.x);
+        float dy = 0.1f * static_cast<float>(y - mLastMousePos.y);
 
         // Update the camera radius based on input.
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = MathHelper::Clamp(mRadius, 50.0f, 500.0f);
+        mRadius = MathHelper::Clamp(mRadius, 20.0f, 500.0f);
     }
 
     mLastMousePos.x = x;
@@ -286,9 +369,9 @@ void Blend::BuildLandGeometryBuffers()
         XMFLOAT3 p = grid.Vertices[i].Position;
         p.y = GetHillHeight(p.x, p.z);
 
-        vertices[i].Pos = p;
+        vertices[i].Pos    = p;
         vertices[i].Normal = GetHillNormal(p.x, p.z);
-        vertices[i].Tex = grid.Vertices[i].TexC;
+        vertices[i].Tex    = grid.Vertices[i].TexC;
     }
 
     D3D11_BUFFER_DESC vbd;
@@ -357,4 +440,43 @@ void Blend::BuildWaveGeometryBuffers()
     D3D11_SUBRESOURCE_DATA iinitData;
     iinitData.pSysMem = &indices[0];
     HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIndexBuffer));
+}
+
+void Blend::BuildCrateGeometryBuffers()
+{
+    GeometryGenerator::MeshData box;
+    GeometryGenerator geoGen;
+
+    geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
+
+    std::vector<Vertex::Basic32> vertices(box.Vertices.size());
+    for (UINT i = 0; i < box.Vertices.size(); ++i)
+    {
+        vertices[i].Pos    = box.Vertices[i].Position;
+        vertices[i].Normal = box.Vertices[i].Normal;
+        vertices[i].Tex    = box.Vertices[i].TexC;
+    }
+
+    D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+    vbd.ByteWidth = sizeof(Vertex::Basic32) * box.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA vinitData;
+    vinitData.pSysMem = &vertices[0];
+
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mBoxVertexBuffer));
+
+    D3D11_BUFFER_DESC ibd;
+    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+    ibd.ByteWidth = sizeof(UINT) * box.Indices.size();
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA iinitData;
+    iinitData.pSysMem = &box.Indices[0];
+    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoxIndexBuffer));
 }

@@ -21,6 +21,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter8-thaw.png](resources/chapter8/thaw.PNG)
 ![chapter8-mipmaps.gif](resources/chapter8/mipmaps.gif)</details>
 
+> __[Chapter9. Blending](chapter9/)__<details><summary>Demo Pictures</summary>
+![chapter9-fogblend.png](resources/chapter9/fogblend.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
