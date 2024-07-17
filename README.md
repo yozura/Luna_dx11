@@ -24,6 +24,10 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter9. Blending](chapter9/)__<details><summary>Demo Pictures</summary>
 ![chapter9-fogblend.png](resources/chapter9/fogblend.PNG)</details>
 
+> __[Chapter10. Stenciling](chapter10/)__<details><summary>Demo Pictures</summary>
+![chapter10-mirror.png](resources/chapter10/mirror.PNG)</details>
+
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
