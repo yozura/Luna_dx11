@@ -180,6 +180,7 @@ void Mirror::DrawScene()
 
     D3DX11_TECHNIQUE_DESC techDesc;
     
+    // Room in back buffer
     activeTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -208,6 +209,7 @@ void Mirror::DrawScene()
         md3dImmediateContext->Draw(18, 6);
     }
 
+    // Skull in back buffer
     activeSkullTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -230,6 +232,7 @@ void Mirror::DrawScene()
         md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
     }
 
+    // Do not draw mirror in back buffer
     activeTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -237,7 +240,6 @@ void Mirror::DrawScene()
 
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
 
-        // Mirror
         XMMATRIX world = XMLoadFloat4x4(&mRoomWorld);
         XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
         XMMATRIX worldViewProj = world * view * proj;
@@ -258,30 +260,29 @@ void Mirror::DrawScene()
         md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xfffffff);
     }
 
-    activeSkullTech->GetDesc(&techDesc);
+    // Floor in mirror
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
+        ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
 
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVertexBuffer, &stride, &offset);
-        md3dImmediateContext->IASetIndexBuffer(mSkullIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
 
-        // Skull
         XMVECTOR mirrorPlane       = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
         XMMATRIX R                 = XMMatrixReflect(mirrorPlane);
-        XMMATRIX world             = XMLoadFloat4x4(&mSkullWorld) * R;
+        XMMATRIX world             = XMLoadFloat4x4(&mRoomWorld) * R;
         XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
         XMMATRIX worldViewProj     = world * view * proj;
 
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetMaterial(mSkullMat);
+        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+        Effects::BasicFX->SetMaterial(mRoomMat);
 
-        XMFLOAT3 oldLightDirections[3];
+        XMFLOAT3 oldLightDir[3];
         for (int i = 0; i < 3; ++i)
         {
-            oldLightDirections[i] = mDirLights[i].Direction;
+            oldLightDir[i] = mDirLights[i].Direction;
 
             XMVECTOR lightDir = XMLoadFloat3(&mDirLights[i].Direction);
             XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
@@ -293,6 +294,50 @@ void Mirror::DrawScene()
         md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
         md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectDSS, 1);
 
+        Effects::BasicFX->SetDiffuseMap(mFloorDiffuseMapSRV);
+        pass->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->Draw(6, 0);
+
+        for (int i = 0; i < 3; ++i)
+        {
+            mDirLights[i].Direction = oldLightDir[i];
+        }
+
+        Effects::BasicFX->SetDirLights(mDirLights);
+    }
+
+    // Skull in mirror
+    activeSkullTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
+        ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
+
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVertexBuffer, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mSkullIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+        XMVECTOR mirrorPlane       = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+        XMMATRIX R                 = XMMatrixReflect(mirrorPlane);
+        XMMATRIX world             = XMLoadFloat4x4(&mSkullWorld) * R;
+        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+        XMMATRIX worldViewProj     = world * view * proj;
+
+        Effects::BasicFX->SetWorld(world);
+        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+        Effects::BasicFX->SetWorldViewProj(worldViewProj);
+        Effects::BasicFX->SetMaterial(mSkullMat);
+
+        XMFLOAT3 oldLightDir[3];
+        for (int i = 0; i < 3; ++i)
+        {
+            oldLightDir[i] = mDirLights[i].Direction;
+
+            XMVECTOR lightDir = XMLoadFloat3(&mDirLights[i].Direction);
+            XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
+            XMStoreFloat3(&mDirLights[i].Direction, reflectedLightDir);
+        }
+
+        Effects::BasicFX->SetDirLights(mDirLights);
+
         pass->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 
@@ -301,12 +346,13 @@ void Mirror::DrawScene()
 
         for (int i = 0; i < 3; ++i)
         {
-            mDirLights[i].Direction = oldLightDirections[i];
+            mDirLights[i].Direction = oldLightDir[i];
         }
 
         Effects::BasicFX->SetDirLights(mDirLights);
     }
 
+    // Mirror in back buffer
     activeTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -325,12 +371,12 @@ void Mirror::DrawScene()
         Effects::BasicFX->SetMaterial(mMirrorMat);
         Effects::BasicFX->SetDiffuseMap(mMirrorDiffuseMapSRV);
 
-        // Mirror
         md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xfffffff);
         pass->Apply(0, md3dImmediateContext);
         md3dImmediateContext->Draw(6, 24);
     }
 
+    // Skull's shadow
     activeSkullTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {

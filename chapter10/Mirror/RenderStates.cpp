@@ -110,7 +110,7 @@ void RenderStates::InitAll(ID3D11Device* device)
     dsd.BackFace.StencilFunc         = D3D11_COMPARISON_ALWAYS;
     HR(device->CreateDepthStencilState(&dsd, &MarkMirrorDSS));
 
-    // DrawReflectDDS
+    // DrawReflectDSS
     ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));
     dsd.DepthEnable                  = true;
     dsd.DepthWriteMask               = D3D11_DEPTH_WRITE_MASK_ALL;
