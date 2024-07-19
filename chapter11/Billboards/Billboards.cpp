@@ -3,67 +3,77 @@
 using namespace DirectX;
 
 Billboards::Billboards(HINSTANCE hInstance)
-    : D3DApp(hInstance)
-    , mRoomVertexBuffer(0), mSkullVertexBuffer(0), mSkullIndexBuffer(0), mSkullTranslation(0.0f, 1.0f, -5.0f)
-    , mFloorDiffuseMapSRV(0), mWallDiffuseMapSRV(0), mMirrorDiffuseMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f)
-    , mRenderOptions(RenderOptions::Textures), mTheta(1.24f * MathHelper::Pi), mPhi(0.42f * MathHelper::Pi)
-    , mRadius(12.0f)
+    : D3DApp(hInstance), mLandVertexBuffer(0), mLandIndexBuffer(0), mWavesVertexBuffer(0), mWavesIndexBuffer(0)
+    , mBoxVertexBuffer(0), mBoxIndexBuffer(0), mTreeSpriteVertexBuffer(0), mGrassMapSRV(0), mWaterMapSRV(0)
+    , mBoxMapSRV(0), mAlphaToCoverageOn(true), mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f)
+    , mLandIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog)
+    , mTheta(1.3f * MathHelper::Pi), mPhi(0.4f * MathHelper::Pi), mRadius(80.0f)
 {
-    mMainWndCaption = L"Mirror";
-    mEnable4xMsaa = false;
+    mMainWndCaption = L"Billboards";
+    mEnable4xMsaa = true;
 
     mLastMousePos.x = 0;
     mLastMousePos.y = 0;
 
     XMMATRIX I = XMMatrixIdentity();
-    XMStoreFloat4x4(&mRoomWorld, I);
+    XMStoreFloat4x4(&mLandWorld, I);
+    XMStoreFloat4x4(&mWavesWorld, I);
     XMStoreFloat4x4(&mView, I);
     XMStoreFloat4x4(&mProj, I);
 
-    mDirLights[0].Ambient   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLights[0].Diffuse   = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mDirLights[0].Specular  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    XMMATRIX boxScale  = XMMatrixScaling(15.0f, 15.0f, 15.0f);
+    XMMATRIX boxOffset = XMMatrixTranslation(8.0f, 5.0f, -15.0f);
+    XMStoreFloat4x4(&mBoxWorld, boxScale * boxOffset);
+
+    XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
+    XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
+
+    mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mDirLights[0].Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
     mDirLights[0].Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
 
-    mDirLights[1].Ambient   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mDirLights[1].Diffuse   = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
-    mDirLights[1].Specular  = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
+    mDirLights[1].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[1].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
+    mDirLights[1].Specular = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
     mDirLights[1].Direction = XMFLOAT3(-0.57735f, -0.57735f, 0.57735f);
 
-    mDirLights[2].Ambient   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mDirLights[2].Diffuse   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLights[2].Specular  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[2].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[2].Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
     mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
 
-    mRoomMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mRoomMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    mRoomMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
+    mLandMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mLandMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 
-    mSkullMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mSkullMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    mSkullMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
+    mWavesMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mWavesMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
+    mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 32.0f);
 
-    // Reflected material is transparent so it blends into mirror.
-    mMirrorMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mMirrorMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
-    mMirrorMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
+    mBoxMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mBoxMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
 
-    mShadowMat.Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mShadowMat.Diffuse  = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.5f);
-    mShadowMat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
+    mTreeMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mTreeMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mTreeMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 }
 
 Billboards::~Billboards()
 {
     md3dImmediateContext->ClearState();
-
-    ReleaseCOM(mRoomVertexBuffer);
-    ReleaseCOM(mSkullVertexBuffer);
-    ReleaseCOM(mSkullIndexBuffer);
-
-    ReleaseCOM(mFloorDiffuseMapSRV);
-    ReleaseCOM(mWallDiffuseMapSRV);
-    ReleaseCOM(mMirrorDiffuseMapSRV);
+    ReleaseCOM(mLandVertexBuffer);
+    ReleaseCOM(mLandIndexBuffer);
+    ReleaseCOM(mWavesVertexBuffer);
+    ReleaseCOM(mWavesIndexBuffer);
+    ReleaseCOM(mBoxVertexBuffer);
+    ReleaseCOM(mBoxIndexBuffer);
+    ReleaseCOM(mTreeSpriteVertexBuffer);
+    ReleaseCOM(mGrassMapSRV);
+    ReleaseCOM(mWaterMapSRV);
+    ReleaseCOM(mBoxMapSRV);
+    ReleaseCOM(mTreeTextureMapArraySRV);
 
     Effects::DestroyAll();
     InputLayouts::DestroyAll();
@@ -75,15 +85,36 @@ bool Billboards::Init()
     if (!D3DApp::Init())
         return false;
 
+    mWaves.Init(160, 160, 1.0f, 0.03f, 3.25f, 0.4f);
+
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
     RenderStates::InitAll(md3dDevice);
 
-    // Load Textures
-    CreateShaderResourceViewFromFile();
-    
-    BuildRoomGeometryBuffers();
-    BuildSkullGeometryBuffers();
+    ScratchImage grass;
+    HR(LoadFromDDSFile(L"textures/grass.dds", DDS_FLAGS_NONE, nullptr, grass));
+    HR(CreateShaderResourceView(md3dDevice, grass.GetImages(), grass.GetImageCount(), grass.GetMetadata(), &mGrassMapSRV));
+
+    ScratchImage water;
+    HR(LoadFromDDSFile(L"textures/water2.dds", DDS_FLAGS_NONE, nullptr, water));
+    HR(CreateShaderResourceView(md3dDevice, water.GetImages(), water.GetImageCount(), water.GetMetadata(), &mWaterMapSRV));
+
+    ScratchImage fence;
+    HR(LoadFromDDSFile(L"textures/WireFence.dds", DDS_FLAGS_NONE, nullptr, fence));
+    HR(CreateShaderResourceView(md3dDevice, fence.GetImages(), fence.GetImageCount(), fence.GetMetadata(), &mBoxMapSRV));
+
+    std::vector<std::wstring> treeFilenames;
+    treeFilenames.push_back(L"textures/tree0.dds");
+    treeFilenames.push_back(L"textures/tree1.dds");
+    treeFilenames.push_back(L"textures/tree2.dds");
+    treeFilenames.push_back(L"textures/tree3.dds");
+
+    mTreeTextureMapArraySRV = D3DHelper::CreateTexture2DArraySRV(md3dDevice, md3dImmediateContext, treeFilenames, DXGI_FORMAT_R8G8B8A8_UNORM);
+
+    BuildLandGeometryBuffers();
+    BuildWaveGeometryBuffers();
+    BuildCrateGeometryBuffers();
+    BuildTreeSpritesBuffer();
 
     return true;
 }
@@ -104,91 +135,116 @@ void Billboards::UpdateScene(float dt)
 
     mEyePosW = XMFLOAT3(x, y, z);
 
-    XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
+    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
     XMVECTOR target = XMVectorZero();
-    XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
     XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
     XMStoreFloat4x4(&mView, V);
 
-    // Switch the render mode base in key input.
+    static float t_base = 0.0f;
+    if ((mTimer.TotalTime() - t_base) >= 0.25f)
+    {
+        t_base += 0.25f;
+
+        DWORD i = 5 + rand() % (mWaves.RowCount() - 10);
+        DWORD j = 5 + rand() % (mWaves.ColumnCount() - 10);
+        float r = MathHelper::RandF(0.5f, 1.0f);
+
+        mWaves.Disturb(i, j, r);
+    }
+
+    mWaves.Update(dt);
+
+    D3D11_MAPPED_SUBRESOURCE mappedData;
+    md3dImmediateContext->Map(mWavesVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+
+    Vertex::Basic32* v = reinterpret_cast<Vertex::Basic32*>(mappedData.pData);
+    for (UINT i = 0; i < mWaves.VertexCount(); ++i)
+    {
+        v[i].Pos = mWaves[i];
+        v[i].Normal = mWaves.Normal(i);
+
+        v[i].Tex.x = 0.5f + mWaves[i].x / mWaves.Width();
+        v[i].Tex.y = 0.5f - mWaves[i].z / mWaves.Depth();
+    }
+
+    md3dImmediateContext->Unmap(mWavesVertexBuffer, 0);
+
+    XMMATRIX wavesScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
+
+    mWaterTexOffset.y += 0.05f * dt;
+    mWaterTexOffset.x += 0.1f * dt;
+
+    XMMATRIX wavesOffset = XMMatrixTranslation(mWaterTexOffset.x, mWaterTexOffset.y, 0.0f);
+
+    XMStoreFloat4x4(&mWaterTexTransform, wavesScale * wavesOffset);
+
     if (GetAsyncKeyState('1') & 0x8000)
         mRenderOptions = RenderOptions::Lighting;
     if (GetAsyncKeyState('2') & 0x8000)
         mRenderOptions = RenderOptions::Textures;
     if (GetAsyncKeyState('3') & 0x8000)
         mRenderOptions = RenderOptions::TexturesAndFog;
-
-    // Allow user to move box
-    if (GetAsyncKeyState('W') & 0x8000)
-        mSkullTranslation.y += 1.0f * dt;
-    if (GetAsyncKeyState('S') & 0x8000)
-        mSkullTranslation.y -= 1.0f * dt;
-    if (GetAsyncKeyState('A') & 0x8000)
-        mSkullTranslation.x -= 1.0f * dt;
-    if (GetAsyncKeyState('D') & 0x8000)
-        mSkullTranslation.x += 1.0f * dt;
-    
-    mSkullTranslation.y = MathHelper::Max(mSkullTranslation.y, 0.0f);
-
-    XMMATRIX skullRotate = XMMatrixRotationY(0.5f * MathHelper::Pi);
-    XMMATRIX skullScale  = XMMatrixScaling(0.45f, 0.45f, 0.45f);
-    XMMATRIX skullOffset = XMMatrixTranslation(mSkullTranslation.x, mSkullTranslation.y, mSkullTranslation.z);
-    XMStoreFloat4x4(&mSkullWorld, skullRotate * skullScale * skullOffset);
+    if (GetAsyncKeyState('R') & 0x8000)
+        mAlphaToCoverageOn = true;
+    if (GetAsyncKeyState('T') & 0x8000)
+        mAlphaToCoverageOn = false;
 }
 
 void Billboards::DrawScene()
 {
-    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+    float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    
+    XMMATRIX view = XMLoadFloat4x4(&mView);
+    XMMATRIX proj = XMLoadFloat4x4(&mProj);
+
+    DrawTreeSprites(view * proj);
 
     md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
     UINT stride = sizeof(Vertex::Basic32);
     UINT offset = 0;
-
-    XMMATRIX view = XMLoadFloat4x4(&mView);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
     
     Effects::BasicFX->SetDirLights(mDirLights);
     Effects::BasicFX->SetEyePosW(mEyePosW);
-    Effects::BasicFX->SetFogColor(Colors::Black);
-    Effects::BasicFX->SetFogStart(2.0f);
-    Effects::BasicFX->SetFogRange(40.0f);
-    
-    ID3DX11EffectTechnique* activeTech      = 0;
-    ID3DX11EffectTechnique* activeSkullTech = 0;
+    Effects::BasicFX->SetFogColor(Colors::Silver);
+    Effects::BasicFX->SetFogStart(15.0f);
+    Effects::BasicFX->SetFogRange(175.0f);
+
+    ID3DX11EffectTechnique* boxTech = 0;
+    ID3DX11EffectTechnique* landAndWavesTech = 0;
 
     switch (mRenderOptions)
     {
     case RenderOptions::Lighting:
-        activeTech      = Effects::BasicFX->Light3Tech;
-        activeSkullTech = Effects::BasicFX->Light3Tech;
+        boxTech = Effects::BasicFX->Light3Tech;
+        landAndWavesTech = Effects::BasicFX->Light3Tech;
         break;
     case RenderOptions::Textures:
-        activeTech      = Effects::BasicFX->Light3TexTech;
-        activeSkullTech = Effects::BasicFX->Light3Tech;
+        boxTech = Effects::BasicFX->Light3TexAlphaClipTech;
+        landAndWavesTech = Effects::BasicFX->Light3TexTech;
         break;
     case RenderOptions::TexturesAndFog:
-        activeTech      = Effects::BasicFX->Light3TexFogTech;
-        activeSkullTech = Effects::BasicFX->Light3FogTech;
+        boxTech = Effects::BasicFX->Light3TexAlphaClipFogTech;
+        landAndWavesTech = Effects::BasicFX->Light3TexFogTech;
         break;
     }
 
     D3DX11_TECHNIQUE_DESC techDesc;
-    
-    // Room in back buffer
-    activeTech->GetDesc(&techDesc);
+
+    // Draw the box with alpha clipping
+    boxTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoxVertexBuffer, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mBoxIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
-
-        XMMATRIX world = XMLoadFloat4x4(&mRoomWorld);
+        XMMATRIX world = XMLoadFloat4x4(&mBoxWorld);
         XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
         XMMATRIX worldViewProj = world * view * proj;
 
@@ -196,220 +252,64 @@ void Billboards::DrawScene()
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
         Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-        Effects::BasicFX->SetMaterial(mRoomMat);
+        Effects::BasicFX->SetMaterial(mBoxMat);
+        Effects::BasicFX->SetDiffuseMap(mBoxMapSRV);
 
-        // Floor
-        Effects::BasicFX->SetDiffuseMap(mFloorDiffuseMapSRV);
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->Draw(6, 0);
+        md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+        boxTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(36, 0, 0);
 
-        // Wall
-        Effects::BasicFX->SetDiffuseMap(mWallDiffuseMapSRV);
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->Draw(18, 6);
-    }
-
-    // Skull in back buffer
-    activeSkullTech->GetDesc(&techDesc);
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
-
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVertexBuffer, &stride, &offset);
-        md3dImmediateContext->IASetIndexBuffer(mSkullIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-        // Skull
-        XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj = world * view * proj;
-
-        Effects::BasicFX->SetWorld(world);
-        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetMaterial(mSkullMat);
-
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-    }
-
-    // Do not draw mirror in back buffer
-    activeTech->GetDesc(&techDesc);
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
-
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
-
-        XMMATRIX world = XMLoadFloat4x4(&mRoomWorld);
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj = world * view * proj;
-
-        Effects::BasicFX->SetWorld(world);
-        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-
-        md3dImmediateContext->OMSetBlendState(RenderStates::NoRenderTargetWriteBS, blendFactor, 0xffffffff);
-        md3dImmediateContext->OMSetDepthStencilState(RenderStates::MarkMirrorDSS, 1);
-
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->Draw(6, 24);
-
-        // Restore States.
-        md3dImmediateContext->OMSetDepthStencilState(0, 0);
-        md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xfffffff);
-    }
-
-    // Floor in mirror
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
-
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
-
-        XMVECTOR mirrorPlane       = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-        XMMATRIX R                 = XMMatrixReflect(mirrorPlane);
-        XMMATRIX world             = XMLoadFloat4x4(&mRoomWorld) * R;
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj     = world * view * proj;
-
-        Effects::BasicFX->SetWorld(world);
-        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-        Effects::BasicFX->SetMaterial(mRoomMat);
-
-        XMFLOAT3 oldLightDir[3];
-        for (int i = 0; i < 3; ++i)
-        {
-            oldLightDir[i] = mDirLights[i].Direction;
-
-            XMVECTOR lightDir = XMLoadFloat3(&mDirLights[i].Direction);
-            XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
-            XMStoreFloat3(&mDirLights[i].Direction, reflectedLightDir);
-        }
-
-        Effects::BasicFX->SetDirLights(mDirLights);
-
-        md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
-        md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectDSS, 1);
-
-        Effects::BasicFX->SetDiffuseMap(mFloorDiffuseMapSRV);
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->Draw(6, 0);
-
-        for (int i = 0; i < 3; ++i)
-        {
-            mDirLights[i].Direction = oldLightDir[i];
-        }
-
-        Effects::BasicFX->SetDirLights(mDirLights);
-    }
-
-    // Skull in mirror
-    activeSkullTech->GetDesc(&techDesc);
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
-
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVertexBuffer, &stride, &offset);
-        md3dImmediateContext->IASetIndexBuffer(mSkullIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-        XMVECTOR mirrorPlane       = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-        XMMATRIX R                 = XMMatrixReflect(mirrorPlane);
-        XMMATRIX world             = XMLoadFloat4x4(&mSkullWorld) * R;
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj     = world * view * proj;
-
-        Effects::BasicFX->SetWorld(world);
-        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetMaterial(mSkullMat);
-
-        XMFLOAT3 oldLightDir[3];
-        for (int i = 0; i < 3; ++i)
-        {
-            oldLightDir[i] = mDirLights[i].Direction;
-
-            XMVECTOR lightDir = XMLoadFloat3(&mDirLights[i].Direction);
-            XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
-            XMStoreFloat3(&mDirLights[i].Direction, reflectedLightDir);
-        }
-
-        Effects::BasicFX->SetDirLights(mDirLights);
-
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-
+        // Restore default Rasterizer State
         md3dImmediateContext->RSSetState(0);
-        md3dImmediateContext->OMSetDepthStencilState(0, 0);
-
-        for (int i = 0; i < 3; ++i)
-        {
-            mDirLights[i].Direction = oldLightDir[i];
-        }
-
-        Effects::BasicFX->SetDirLights(mDirLights);
     }
 
-    // Mirror in back buffer
-    activeTech->GetDesc(&techDesc);
+    // Draw the hills and waves
+    landAndWavesTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mLandVertexBuffer, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mLandIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVertexBuffer, &stride, &offset);
-
-        XMMATRIX world = XMLoadFloat4x4(&mRoomWorld);
+        // Land
+        XMMATRIX world = XMLoadFloat4x4(&mLandWorld);
         XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
         XMMATRIX worldViewProj = world * view * proj;
 
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-        Effects::BasicFX->SetMaterial(mMirrorMat);
-        Effects::BasicFX->SetDiffuseMap(mMirrorDiffuseMapSRV);
+        Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mGrassTexTransform));
+        Effects::BasicFX->SetMaterial(mLandMat);
+        Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
 
-        md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xfffffff);
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->Draw(6, 24);
-    }
+        landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
 
-    // Skull's shadow
-    activeSkullTech->GetDesc(&techDesc);
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
+        // Waves
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesVertexBuffer, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mWavesIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-        md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVertexBuffer, &stride, &offset);
-        md3dImmediateContext->IASetIndexBuffer(mSkullIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-        XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); 
-        XMVECTOR toMainLight = -XMLoadFloat3(&mDirLights[0].Direction);
-        XMMATRIX S = XMMatrixShadow(shadowPlane, toMainLight);
-        XMMATRIX shadowOffsetY = XMMatrixTranslation(0.0f, 0.001f, 0.0f);
-
-        XMMATRIX world = XMLoadFloat4x4(&mSkullWorld) * S * shadowOffsetY;
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj = world * view * proj;
+        world = XMLoadFloat4x4(&mWavesWorld);
+        worldInvTranspose = MathHelper::InverseTranspose(world);
+        worldViewProj = world * view * proj;
 
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetMaterial(mShadowMat);
+        Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mWaterTexTransform));
+        Effects::BasicFX->SetMaterial(mWavesMat);
+        Effects::BasicFX->SetDiffuseMap(mWaterMapSRV);
 
-        md3dImmediateContext->OMSetDepthStencilState(RenderStates::NoDoubleBlendDSS, 0);
-        pass->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+        md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
+        landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
 
+        // Restore default Blend State
         md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
-        md3dImmediateContext->OMSetDepthStencilState(0, 0);
     }
 
     HR(mSwapChain->Present(0, 0));
 }
-
 
 void Billboards::OnMouseDown(WPARAM btnState, int x, int y)
 {
@@ -442,148 +342,62 @@ void Billboards::OnMouseMove(WPARAM btnState, int x, int y)
     else if ((btnState & MK_RBUTTON) != 0)
     {
         // Make each pixel correspond to 0.01 unit in the scene.
-        float dx = 0.01f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.01f * static_cast<float>(y - mLastMousePos.y);
+        float dx = 0.1f * static_cast<float>(x - mLastMousePos.x);
+        float dy = 0.1f * static_cast<float>(y - mLastMousePos.y);
 
         // Update the camera radius based on input.
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = MathHelper::Clamp(mRadius, 3.0f, 50.0f);
+        mRadius = MathHelper::Clamp(mRadius, 20.0f, 500.0f);
     }
 
     mLastMousePos.x = x;
     mLastMousePos.y = y;
 }
 
-void Billboards::CreateShaderResourceViewFromFile()
+float Billboards::GetHillHeight(float x, float z) const
 {
-    ScratchImage floor;
-    HR(LoadFromDDSFile(L"textures/checkboard.dds", DDS_FLAGS_NONE, nullptr, floor));
-    HR(CreateShaderResourceView(md3dDevice, floor.GetImages(), floor.GetImageCount(), floor.GetMetadata(), &mFloorDiffuseMapSRV));
-
-    ScratchImage wall;
-    HR(LoadFromDDSFile(L"textures/brick01.dds", DDS_FLAGS_NONE, nullptr, wall));
-    HR(CreateShaderResourceView(md3dDevice, wall.GetImages(), wall.GetImageCount(), wall.GetMetadata(), &mWallDiffuseMapSRV));
-
-    ScratchImage mirror;
-    HR(LoadFromDDSFile(L"textures/ice.dds", DDS_FLAGS_NONE, nullptr, mirror));
-    HR(CreateShaderResourceView(md3dDevice, mirror.GetImages(), mirror.GetImageCount(), mirror.GetMetadata(), &mMirrorDiffuseMapSRV));
+    return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
 }
 
-void Billboards::BuildRoomGeometryBuffers()
+XMFLOAT3 Billboards::GetHillNormal(float x, float z) const
 {
-	// Create and specify geometry.  For this sample we draw a floor
-	// and a wall with a mirror on it.  We put the floor, wall, and
-	// mirror geometry in one vertex buffer.
-	//
-	//   |--------------|
-	//   |              |
-    //   |----|----|----|
-    //   |Wall|Mirr|Wall|
-	//   |    | or |    |
-    //   /--------------/
-    //  /   Floor      /
-	// /--------------/
+    // n = (-df/dx, 1, -df/dz)
+    XMFLOAT3 n(
+        -0.03f * z * cosf(0.1f * x) - 0.3f * cosf(0.1f * z),
+        1.0f,
+        -0.3f * sinf(0.1f * x) + 0.03f * x * sinf(0.1f * z));
 
-    Vertex::Basic32 v[30];
+    XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
+    XMStoreFloat3(&n, unitNormal);
 
-    // Floor: Observe we tile texture coordinates.
-    v[0] = Vertex::Basic32(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f);
-    v[1] = Vertex::Basic32(-3.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
-    v[2] = Vertex::Basic32(7.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 4.0f, 0.0f);
+    return n;
+}
 
-    v[3] = Vertex::Basic32(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f);
-    v[4] = Vertex::Basic32(7.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 4.0f, 0.0f);
-    v[5] = Vertex::Basic32(7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 4.0f, 4.0f);
+void Billboards::BuildLandGeometryBuffers()
+{
+    GeometryGenerator::MeshData grid;
+    GeometryGenerator geoGen;
 
-    // Wall: Observe we tile texture coordinates, and that we
-    // leave a gap in the middle for the mirror.
-    v[6]  = Vertex::Basic32(-3.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f);
-    v[7]  = Vertex::Basic32(-3.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[8]  = Vertex::Basic32(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 0.0f);
+    geoGen.CreateGrid(160.0f, 160.0f, 50, 50, grid);
 
-    v[9]  = Vertex::Basic32(-3.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f);
-    v[10] = Vertex::Basic32(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 0.0f);
-    v[11] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 2.0f);
+    mLandIndexCount = grid.Indices.size();
 
-    v[12] = Vertex::Basic32(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f);
-    v[13] = Vertex::Basic32(2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[14] = Vertex::Basic32(7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 2.0f, 0.0f);
+    std::vector<Vertex::Basic32> vertices(grid.Vertices.size());
+    for (size_t i = 0; i < grid.Vertices.size(); ++i)
+    {
+        XMFLOAT3 p = grid.Vertices[i].Position;
+        p.y = GetHillHeight(p.x, p.z);
 
-    v[15] = Vertex::Basic32(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f);
-    v[16] = Vertex::Basic32(7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 2.0f, 0.0f);
-    v[17] = Vertex::Basic32(7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 2.0f, 2.0f);
-
-    v[18] = Vertex::Basic32(-3.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[19] = Vertex::Basic32(-3.5f, 6.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[20] = Vertex::Basic32(7.5f, 6.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 0.0f);
-
-    v[21] = Vertex::Basic32(-3.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[22] = Vertex::Basic32(7.5f, 6.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 0.0f);
-    v[23] = Vertex::Basic32(7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 1.0f);
-
-    // Mirror
-    v[24] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[25] = Vertex::Basic32(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-    v[26] = Vertex::Basic32(2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-
-    v[27] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-    v[28] = Vertex::Basic32(2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-    v[29] = Vertex::Basic32(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+        vertices[i].Pos = p;
+        vertices[i].Normal = GetHillNormal(p.x, p.z);
+        vertices[i].Tex = grid.Vertices[i].TexC;
+    }
 
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(Vertex::Basic32) * 30;
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = 0;
-    vbd.MiscFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA vinitData;
-    vinitData.pSysMem = v;
-
-    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mRoomVertexBuffer));
-}
-
-void Billboards::BuildSkullGeometryBuffers()
-{
-    std::ifstream fin("models/skull.txt");
-
-    if (!fin)
-    {
-        MessageBox(0, L"models/skull.txt not found.", 0, 0);
-        return;
-    }
-
-    UINT vCount = 0;
-    UINT tCount = 0;
-    std::string ignore;
-
-    fin >> ignore >> vCount;
-    fin >> ignore >> tCount;
-    fin >> ignore >> ignore >> ignore >> ignore;
-
-    std::vector<Vertex::Basic32> vertices(vCount);
-    for (UINT i = 0; i < vCount; ++i)
-    {
-        fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
-        fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
-    }
-
-    fin >> ignore >> ignore >> ignore;
-
-    mSkullIndexCount = tCount * 3;
-    std::vector<UINT> indices(mSkullIndexCount);
-    for (UINT i = 0; i < tCount; ++i)
-    {
-        fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
-    }
-
-    fin.close();
-
-    D3D11_BUFFER_DESC vbd;
-    vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(Vertex::Basic32) * vCount;
+    vbd.ByteWidth = sizeof(Vertex::Basic32) * grid.Vertices.size();
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
@@ -591,17 +405,179 @@ void Billboards::BuildSkullGeometryBuffers()
     D3D11_SUBRESOURCE_DATA vInitData;
     vInitData.pSysMem = &vertices[0];
 
-    HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mSkullVertexBuffer));
+    HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mLandVertexBuffer));
 
     D3D11_BUFFER_DESC ibd;
     ibd.Usage = D3D11_USAGE_IMMUTABLE;
-    ibd.ByteWidth = sizeof(UINT) * mSkullIndexCount;
+    ibd.ByteWidth = sizeof(UINT) * mLandIndexCount;
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = 0;
     ibd.MiscFlags = 0;
 
     D3D11_SUBRESOURCE_DATA iInitData;
-    iInitData.pSysMem = &indices[0];
+    iInitData.pSysMem = &grid.Indices[0];
 
-    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mSkullIndexBuffer));
+    HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mLandIndexBuffer));
 }
+
+void Billboards::BuildWaveGeometryBuffers()
+{
+    D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_DYNAMIC;
+    vbd.ByteWidth = sizeof(Vertex::Basic32) * mWaves.VertexCount();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    vbd.MiscFlags = 0;
+
+    HR(md3dDevice->CreateBuffer(&vbd, 0, &mWavesVertexBuffer));
+
+    std::vector<UINT> indices(3 * mWaves.TriangleCount());
+    UINT m = mWaves.RowCount();
+    UINT n = mWaves.ColumnCount();
+    int k = 0;
+    for (UINT i = 0; i < m - 1; ++i)
+    {
+        for (DWORD j = 0; j < n - 1; ++j)
+        {
+            indices[k] = i * n + j;
+            indices[k + 1] = i * n + j + 1;
+            indices[k + 2] = (i + 1) * n + j;
+
+            indices[k + 3] = (i + 1) * n + j;
+            indices[k + 4] = i * n + j + 1;
+            indices[k + 5] = (i + 1) * n + j + 1;
+
+            k += 6; // next quad
+        }
+    }
+
+    D3D11_BUFFER_DESC ibd;
+    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+    ibd.ByteWidth = sizeof(UINT) * indices.size();
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA iinitData;
+    iinitData.pSysMem = &indices[0];
+    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIndexBuffer));
+}
+
+void Billboards::BuildCrateGeometryBuffers()
+{
+    GeometryGenerator::MeshData box;
+    GeometryGenerator geoGen;
+
+    geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
+
+    std::vector<Vertex::Basic32> vertices(box.Vertices.size());
+    for (UINT i = 0; i < box.Vertices.size(); ++i)
+    {
+        vertices[i].Pos = box.Vertices[i].Position;
+        vertices[i].Normal = box.Vertices[i].Normal;
+        vertices[i].Tex = box.Vertices[i].TexC;
+    }
+
+    D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+    vbd.ByteWidth = sizeof(Vertex::Basic32) * box.Vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA vinitData;
+    vinitData.pSysMem = &vertices[0];
+
+    HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mBoxVertexBuffer));
+
+    D3D11_BUFFER_DESC ibd;
+    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+    ibd.ByteWidth = sizeof(UINT) * box.Indices.size();
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA iinitData;
+    iinitData.pSysMem = &box.Indices[0];
+    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoxIndexBuffer));
+}
+
+void Billboards::BuildTreeSpritesBuffer()
+{
+    Vertex::TreePointSprite v[TreeCount];
+    for (UINT i = 0; i < TreeCount; ++i)
+    {
+        float x = MathHelper::RandF(-35.0f, 35.0f);
+        float z = MathHelper::RandF(-35.0f, 35.0f);
+        float y = GetHillHeight(x, z);
+
+        y += 10.0f;
+
+        v[i].Pos  = XMFLOAT3(x, y, z);
+        v[i].Size = XMFLOAT2(24.0f, 24.0f);
+    }
+
+    D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+    vbd.ByteWidth = sizeof(Vertex::TreePointSprite) * TreeCount;
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA vInitData;
+    vInitData.pSysMem = v;
+
+    HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mTreeSpriteVertexBuffer));
+
+}
+
+void Billboards::DrawTreeSprites(DirectX::CXMMATRIX viewProj)
+{
+    Effects::TreeSpriteFX->SetDirLights(mDirLights);
+    Effects::TreeSpriteFX->SetEyePosW(mEyePosW);
+    Effects::TreeSpriteFX->SetFogColor(Colors::Silver);
+    Effects::TreeSpriteFX->SetFogStart(15.0f);
+    Effects::TreeSpriteFX->SetFogRange(175.0f);
+    Effects::TreeSpriteFX->SetViewProj(viewProj);
+    Effects::TreeSpriteFX->SetMaterial(mTreeMat);
+    Effects::TreeSpriteFX->SetTreeTextureMapArray(mTreeTextureMapArraySRV);
+
+    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+    md3dImmediateContext->IASetInputLayout(InputLayouts::TreePointSprite);
+    UINT stride = sizeof(Vertex::TreePointSprite);
+    UINT offset = 0;
+
+    ID3DX11EffectTechnique* treeTech = Effects::TreeSpriteFX->Light3Tech;
+    switch (mRenderOptions)
+    {
+    case RenderOptions::Lighting:
+        treeTech = Effects::TreeSpriteFX->Light3Tech;
+        break;
+    case RenderOptions::Textures:
+        treeTech = Effects::TreeSpriteFX->Light3TexAlphaClipTech;
+        break;
+    case RenderOptions::TexturesAndFog:
+        treeTech = Effects::TreeSpriteFX->Light3TexAlphaClipFogTech;
+        break;
+    }
+
+    D3DX11_TECHNIQUE_DESC techDesc;
+    treeTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mTreeSpriteVertexBuffer, &stride, &offset);
+
+        float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+        if (mAlphaToCoverageOn)
+        {
+            md3dImmediateContext->OMSetBlendState(RenderStates::AlphaToCoverageBS, blendFactor, 0xffffffff);
+        }
+
+        treeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->Draw(TreeCount, 0);
+
+        md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+    }
+}
+

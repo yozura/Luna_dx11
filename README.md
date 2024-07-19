@@ -27,6 +27,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter10. Stenciling](chapter10/)__<details><summary>Demo Pictures</summary>
 ![chapter10-mirror.png](resources/chapter10/mirror.PNG)</details>
 
+> __[Chapter11. Geometry Shader](chapter11/)__<details><summary>Demo Pictures</summary>
+![chapter11-billboards.png](resources/chapter11/billboards.PNG)</details>
+
 
 ## Diffrence from a book.
 

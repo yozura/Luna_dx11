@@ -34,7 +34,7 @@ SamplerState samLinear
     Filter   = MIN_MAG_MIP_LINEAR;
 
     AddressU = CLAMP;
-    AddressU = CLAMP;
+    AddressV = CLAMP;
 };
 
 struct VertexIn
@@ -102,7 +102,7 @@ void GS(point VertexOut gin[1],
     }
 }
 
-float PS(GeoOut pin, uniform int gLightCount, uniform bool gUseTexture, uniform bool gAlphaClip, uniform bool gFogEnabled) : SV_Target
+float4 PS(GeoOut pin, uniform int gLightCount, uniform bool gUseTexture, uniform bool gAlphaClip, uniform bool gFogEnabled) : SV_Target
 {
     pin.NormalW = normalize(pin.NormalW);
     
@@ -125,7 +125,6 @@ float PS(GeoOut pin, uniform int gLightCount, uniform bool gUseTexture, uniform 
     }
     
     float4 litColor = texColor;
-    
     if (gLightCount > 0)
     {
         float4 ambient  = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -147,7 +146,7 @@ float PS(GeoOut pin, uniform int gLightCount, uniform bool gUseTexture, uniform 
     
     if (gFogEnabled)
     {
-        float fogLerp = saturate((distToEye - gFogRange) / gFogRange);
+        float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
         litColor = lerp(litColor, gFogColor, fogLerp);
     }
     
