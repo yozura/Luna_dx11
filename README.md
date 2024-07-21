@@ -30,6 +30,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter11. Geometry Shader](chapter11/)__<details><summary>Demo Pictures</summary>
 ![chapter11-billboards.png](resources/chapter11/billboards.PNG)</details>
 
+> __[Chapter12. Compute Shader](chapter12/)__<details><summary>Demo Pictures</summary>
+![chapter12-blur.png](resources/chapter12/blur.PNG)</details>
+
 
 ## Diffrence from a book.
 
