@@ -1,11 +1,11 @@
-#include "Blur.h"
+#include "BasicTessellation.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    Blur blur(hInstance);
+    BasicTessellation bt(hInstance);
 
-    if (!blur.Init())
+    if (!bt.Init())
         return 0;
 
-    return blur.Run();
+    return bt.Run();
 }

@@ -77,36 +77,47 @@ BasicEffect::~BasicEffect()
 }
 #pragma endregion
 
-#pragma region BlurEffect
-BlurEffect::BlurEffect(ID3D11Device* device, const std::wstring& filename)
+#pragma region TessellationEffect
+TessellationEffect::TessellationEffect(ID3D11Device* device, const std::wstring& filename)
     : Effect(device, filename)
 {
-    HorzBlurTech = mFX->GetTechniqueByName("HorzBlur");
-    VertBlurTech = mFX->GetTechniqueByName("VertBlur");
+    TessTech = mFX->GetTechniqueByName("Tess");
+    
+    World             = mFX->GetVariableByName("gWorld")->AsMatrix();
+    WorldViewProj     = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+    WorldInvTranspose = mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
+    TexTransform      = mFX->GetVariableByName("gTexTransform")->AsMatrix();
 
-    Weights   = mFX->GetVariableByName("gWeights")->AsScalar();
-    InputMap  = mFX->GetVariableByName("gInput")->AsShaderResource();
-    OutputMap = mFX->GetVariableByName("gOutput")->AsUnorderedAccessView();
+    EyePosW  = mFX->GetVariableByName("gEyePosW")->AsVector();
+    FogColor = mFX->GetVariableByName("gFogColor")->AsVector();
+
+    FogStart = mFX->GetVariableByName("gFogStart")->AsScalar();
+    FogRange = mFX->GetVariableByName("gFogRange")->AsScalar();
+
+    DirLights = mFX->GetVariableByName("gDirLights");
+    Mat       = mFX->GetVariableByName("gMaterial");
+
+    DiffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 }
 
-BlurEffect::~BlurEffect()
+TessellationEffect::~TessellationEffect()
 {
 }
 #pragma endregion
 
 #pragma region Effects
-BasicEffect* Effects::BasicFX = 0;
-BlurEffect*  Effects::BlurFX  = 0;
+BasicEffect*        Effects::BasicFX        = 0;
+TessellationEffect* Effects::TessellationFX = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
-    BasicFX = new BasicEffect(device, L"shaders/Basic.cso");
-    BlurFX  = new BlurEffect(device, L"shaders/Blur.cso");
+    BasicFX        = new BasicEffect(device, L"shaders/Basic.cso");
+    TessellationFX = new TessellationEffect(device, L"shaders/Tessellation.cso");
 }
 
 void Effects::DestroyAll()
 {
     SafeDelete(BasicFX);
-    SafeDelete(BlurFX);
+    SafeDelete(TessellationFX);
 }
 #pragma endregion
