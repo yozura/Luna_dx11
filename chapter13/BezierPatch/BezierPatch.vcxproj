@@ -166,7 +166,7 @@ xcopy /Y "$(OutDir)shaders\BezierTessellation.cso" "$(ProjectDir)shaders\"</Comm
     <ClCompile Include="..\..\common\LightHelper.cpp" />
     <ClCompile Include="..\..\common\MathHelper.cpp" />
     <ClCompile Include="..\..\common\Waves.cpp" />
-    <ClCompile Include="BasicTessellation.cpp" />
+    <ClCompile Include="BezierTessellation.cpp" />
     <ClCompile Include="Effects.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="RenderStates.cpp" />
@@ -182,7 +182,7 @@ xcopy /Y "$(OutDir)shaders\BezierTessellation.cso" "$(ProjectDir)shaders\"</Comm
     <ClInclude Include="..\..\common\LightHelper.h" />
     <ClInclude Include="..\..\common\MathHelper.h" />
     <ClInclude Include="..\..\common\Waves.h" />
-    <ClInclude Include="BasicTessellation.h" />
+    <ClInclude Include="BezierTessellation.h" />
     <ClInclude Include="Effects.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Vertex.h" />

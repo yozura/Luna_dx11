@@ -78,7 +78,7 @@ BasicEffect::~BasicEffect()
 #pragma endregion
 
 #pragma region TessellationEffect
-TessellationEffect::TessellationEffect(ID3D11Device* device, const std::wstring& filename)
+BezierTessellationEffect::BezierTessellationEffect(ID3D11Device* device, const std::wstring& filename)
     : Effect(device, filename)
 {
     TessTech = mFX->GetTechniqueByName("Tess");
@@ -100,24 +100,24 @@ TessellationEffect::TessellationEffect(ID3D11Device* device, const std::wstring&
     DiffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 }
 
-TessellationEffect::~TessellationEffect()
+BezierTessellationEffect::~BezierTessellationEffect()
 {
 }
 #pragma endregion
 
 #pragma region Effects
-BasicEffect*        Effects::BasicFX        = 0;
-TessellationEffect* Effects::TessellationFX = 0;
+BasicEffect*              Effects::BasicFX              = 0;
+BezierTessellationEffect* Effects::BezierTessellationFX = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
-    BasicFX        = new BasicEffect(device, L"shaders/Basic.cso");
-    TessellationFX = new TessellationEffect(device, L"shaders/Tessellation.cso");
+    BasicFX              = new BasicEffect(device, L"shaders/Basic.cso");
+    BezierTessellationFX = new BezierTessellationEffect(device, L"shaders/BezierTessellation.cso");
 }
 
 void Effects::DestroyAll()
 {
     SafeDelete(BasicFX);
-    SafeDelete(TessellationFX);
+    SafeDelete(BezierTessellationFX);
 }
 #pragma endregion

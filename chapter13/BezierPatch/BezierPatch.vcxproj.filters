@@ -32,7 +32,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicTessellation.cpp">
+    <ClCompile Include="BezierTessellation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Effects.cpp">
@@ -70,7 +70,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BasicTessellation.h">
+    <ClInclude Include="BezierTessellation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Effects.h">

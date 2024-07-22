@@ -22,7 +22,7 @@ void InputLayouts::InitAll(ID3D11Device* device)
 {
     D3DX11_PASS_DESC passDesc;
 
-    Effects::TessellationFX->TessTech->GetPassByIndex(0)->GetDesc(&passDesc);
+    Effects::BezierTessellationFX->TessTech->GetPassByIndex(0)->GetDesc(&passDesc);
     HR(device->CreateInputLayout(InputLayoutDesc::Pos, 1, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &Pos));
 
     // Basic32

@@ -1,12 +1,12 @@
-#include "BasicTessellation.h"
+#include "BezierTessellation.h"
 
 using namespace DirectX;
 
-BasicTessellation::BasicTessellation(HINSTANCE hInstance)
+BezierTessellation::BezierTessellation(HINSTANCE hInstance)
     : D3DApp(hInstance), mQuadPatchVB(0), mEyePosW(0.0f, 0.0f, 0.0f)
     , mTheta(1.3f * MathHelper::Pi), mPhi(0.2f * MathHelper::Pi), mRadius(80.0f)
 {
-    mMainWndCaption = L"Basic Tessellation";
+    mMainWndCaption = L"Bezier Surface";
     mEnable4xMsaa = false;
 
     mLastMousePos.x = 0;
@@ -17,7 +17,7 @@ BasicTessellation::BasicTessellation(HINSTANCE hInstance)
     XMStoreFloat4x4(&mProj, I);
 }
 
-BasicTessellation::~BasicTessellation()
+BezierTessellation::~BezierTessellation()
 {
     md3dImmediateContext->ClearState();
     ReleaseCOM(mQuadPatchVB);
@@ -27,7 +27,7 @@ BasicTessellation::~BasicTessellation()
     RenderStates::DestroyAll();
 }
 
-bool BasicTessellation::Init()
+bool BezierTessellation::Init()
 {
     if (!D3DApp::Init())
         return false;
@@ -41,7 +41,7 @@ bool BasicTessellation::Init()
     return true;
 }
 
-void BasicTessellation::OnResize()
+void BezierTessellation::OnResize()
 {
     D3DApp::OnResize();
 
@@ -49,7 +49,7 @@ void BasicTessellation::OnResize()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void BasicTessellation::UpdateScene(float dt)
+void BezierTessellation::UpdateScene(float dt)
 {
     float x = mRadius * sinf(mPhi) * cosf(mTheta);
     float z = mRadius * sinf(mPhi) * sinf(mTheta);
@@ -65,7 +65,7 @@ void BasicTessellation::UpdateScene(float dt)
     XMStoreFloat4x4(&mView, V);
 }
 
-void BasicTessellation::DrawScene()
+void BezierTessellation::DrawScene()
 {
     md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -79,18 +79,18 @@ void BasicTessellation::DrawScene()
     XMMATRIX proj = XMLoadFloat4x4(&mProj);
 
     md3dImmediateContext->IASetInputLayout(InputLayouts::Pos);
-    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+    md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST);
 
     UINT stride = sizeof(Vertex::Pos);
     UINT offset = 0;
 
-    Effects::TessellationFX->SetEyePosW(mEyePosW);
-    Effects::TessellationFX->SetFogColor(Colors::Silver);
-    Effects::TessellationFX->SetFogStart(15.0f);
-    Effects::TessellationFX->SetFogRange(175.0f);
+    Effects::BezierTessellationFX->SetEyePosW(mEyePosW);
+    Effects::BezierTessellationFX->SetFogColor(Colors::Silver);
+    Effects::BezierTessellationFX->SetFogStart(15.0f);
+    Effects::BezierTessellationFX->SetFogRange(175.0f);
 
     D3DX11_TECHNIQUE_DESC techDesc;
-    Effects::TessellationFX->TessTech->GetDesc(&techDesc);
+    Effects::BezierTessellationFX->TessTech->GetDesc(&techDesc);
 
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -100,23 +100,23 @@ void BasicTessellation::DrawScene()
         XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
         XMMATRIX worldViewProj = world * view * proj;
         
-        Effects::TessellationFX->SetWorld(world);
-        Effects::TessellationFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::TessellationFX->SetWorldViewProj(worldViewProj);
-        Effects::TessellationFX->SetTexTransform(XMMatrixIdentity());
-        Effects::TessellationFX->SetDiffuseMap(0);
+        Effects::BezierTessellationFX->SetWorld(world);
+        Effects::BezierTessellationFX->SetWorldInvTranspose(worldInvTranspose);
+        Effects::BezierTessellationFX->SetWorldViewProj(worldViewProj);
+        Effects::BezierTessellationFX->SetTexTransform(XMMatrixIdentity());
+        Effects::BezierTessellationFX->SetDiffuseMap(0);
 
-        Effects::TessellationFX->TessTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        Effects::BezierTessellationFX->TessTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         
         md3dImmediateContext->RSSetState(RenderStates::WireFrameRS);
-        md3dImmediateContext->Draw(4, 0);
+        md3dImmediateContext->Draw(16, 0);
     }
 
     HR(mSwapChain->Present(0, 0));
 }
 
 
-void BasicTessellation::OnMouseDown(WPARAM btnState, int x, int y)
+void BezierTessellation::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -124,12 +124,12 @@ void BasicTessellation::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void BasicTessellation::OnMouseUp(WPARAM btnState, int x, int y)
+void BezierTessellation::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void BasicTessellation::OnMouseMove(WPARAM btnState, int x, int y)
+void BezierTessellation::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if ((btnState & MK_LBUTTON) != 0)
     {
@@ -160,25 +160,44 @@ void BasicTessellation::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
 
-void BasicTessellation::BuildQuadPatchBuffer()
+void BezierTessellation::BuildQuadPatchBuffer()
 {
     D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
-    vbd.ByteWidth = sizeof(XMFLOAT3) * 4;
+    vbd.ByteWidth = sizeof(XMFLOAT3) * 16;
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = 0;
     vbd.MiscFlags = 0;
 
-    XMFLOAT3 vertices[4] =
+    XMFLOAT3 vertices[16] =
     {
-        XMFLOAT3(-10.0f, 0.0f, +10.0f),
-        XMFLOAT3(+10.0f, 0.0f, +10.0f),
-        XMFLOAT3(-10.0f, 0.0f, -10.0f),
-        XMFLOAT3(+10.0f, 0.0f, -10.0f)
+        // Row 0
+        XMFLOAT3(-10.0f, -10.0f, +15.0f),
+        XMFLOAT3(-5.0f,  0.0f, +15.0f),
+        XMFLOAT3(+5.0f,  0.0f, +15.0f),
+        XMFLOAT3(+10.0f, 0.0f, +15.0f),
+
+        // Row 1
+        XMFLOAT3(-15.0f, 0.0f, +5.0f),
+        XMFLOAT3(-5.0f,  0.0f, +5.0f),
+        XMFLOAT3(+5.0f,  20.0f, +5.0f),
+        XMFLOAT3(+15.0f, 0.0f, +5.0f),
+
+        // Row 2
+        XMFLOAT3(-15.0f, 0.0f, -5.0f),
+        XMFLOAT3(-5.0f,  0.0f, -5.0f),
+        XMFLOAT3(+5.0f,  0.0f, -5.0f),
+        XMFLOAT3(+15.0f, 0.0f, -5.0f),
+
+        // Row 3
+        XMFLOAT3(-10.0f, 10.0f, -15.0f),
+        XMFLOAT3(-5.0f,  0.0f, -15.0f),
+        XMFLOAT3(+5.0f,  0.0f, -15.0f),
+        XMFLOAT3(+25.0f, 10.0f, -15.0f)
     };
 
     D3D11_SUBRESOURCE_DATA vInitData;
-    vInitData.pSysMem = &vertices[0];
+    vInitData.pSysMem = vertices;
 
     HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mQuadPatchVB));
 }

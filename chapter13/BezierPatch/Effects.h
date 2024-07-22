@@ -85,12 +85,12 @@ public:
 };
 #pragma endregion
 
-#pragma region TessellationEffect
-class TessellationEffect : Effect
+#pragma region BezierTessellationEffect
+class BezierTessellationEffect : Effect
 {
 public:
-    TessellationEffect(ID3D11Device* device, const std::wstring& filename);
-    ~TessellationEffect();
+    BezierTessellationEffect(ID3D11Device* device, const std::wstring& filename);
+    ~BezierTessellationEffect();
 
     void SetWorldViewProj(DirectX::CXMMATRIX M)       { WorldViewProj->SetMatrix(reinterpret_cast<const float*>(&M)); }
     void SetWorld(DirectX::CXMMATRIX M)               { World->SetMatrix(reinterpret_cast<const float*>(&M)); }
@@ -131,8 +131,8 @@ public:
     static void InitAll(ID3D11Device* device);
     static void DestroyAll();
 
-    static BasicEffect*        BasicFX;
-    static TessellationEffect* TessellationFX;
+    static BasicEffect*              BasicFX;
+    static BezierTessellationEffect* BezierTessellationFX;
 };
 #pragma endregion
 

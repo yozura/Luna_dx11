@@ -1,8 +1,8 @@
-#include "BasicTessellation.h"
+#include "BezierTessellation.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    BasicTessellation bt(hInstance);
+    BezierTessellation bt(hInstance);
 
     if (!bt.Init())
         return 0;

@@ -1,5 +1,5 @@
-#ifndef BASIC_TESSELLATION_H
-#define BASIC_TESSELLATION_H
+#ifndef BEZIER_TESSELLATION_H
+#define BEZIER_TESSELLATION_H
 
 #include "D3DApp.h"
 #include "GeometryGenerator.h"
@@ -9,11 +9,11 @@
 #include "Vertex.h"
 #include "RenderStates.h"
 
-class BasicTessellation : public D3DApp
+class BezierTessellation : public D3DApp
 {
 public:
-    BasicTessellation(HINSTANCE hInstance);
-    ~BasicTessellation();
+    BezierTessellation(HINSTANCE hInstance);
+    ~BezierTessellation();
 
 	bool Init();
 	void OnResize();
