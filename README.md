@@ -33,6 +33,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter12. Compute Shader](chapter12/)__<details><summary>Demo Pictures</summary>
 ![chapter12-blur.png](resources/chapter12/blur.PNG)</details>
 
+> __[Chapter13. Tessellation Stage](chapter13/)__<details><summary>Demo Pictures</summary>
+![chapter13-tess.gif](resources/chapter13/tess.gif)</details>
 
 ## Diffrence from a book.
 
