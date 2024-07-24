@@ -1,8 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <d3d11.h>
-#include <DirectXMath.h>
+#include "D3DUtil.h"
 
 class Camera
 {
@@ -38,7 +37,7 @@ public:
     float GetFarWindowHeight() const;
 
     // Set frustum.
-    void SetLens(float fovY, float aspect, float zn, float zf);
+    void SetLens(float fovY, float aspect, float nearZ, float farZ);
 
     // Define camera space via Look At param.
     void LookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp);
