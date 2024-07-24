@@ -1,25 +1,23 @@
-#include "LitSkull.h"
+#include "FirstPersonCamera.h"
 
 using namespace DirectX;
 
-LitSkull::LitSkull(HINSTANCE hInstance)
+FirstPersonCamera::FirstPersonCamera(HINSTANCE hInstance)
     : D3DApp(hInstance)
     , mShapesVertexBuffer(0), mShapesIndexBuffer(0)
     , mSkullVertexBuffer(0), mSkullIndexBuffer(0)
-    , mSkullIndexCount(0), mDiffuseMapSRV(0)
-    , mLightCount(1), mEyePosW(0.0f, 0.0f, 0.0f)
-    , mTheta(1.5f * MathHelper::Pi), mPhi(0.1f * MathHelper::Pi)
-    , mRadius(15.0f)
+    , mSkullIndexCount(0), mFloorTexSRV(0), mStoneTexSRV(0)
+    , mBrickTexSRV(0), mLightCount(3)
 {
-    mMainWndCaption = L"LitSkull";
+    mMainWndCaption = L"FirstPersonCamera";
 
     mLastMousePos.x = 0;
     mLastMousePos.y = 0;
 
+    mCam.SetPosition(0.0f, 2.0f, -15.0f);
+
     XMMATRIX I = XMMatrixIdentity();
     XMStoreFloat4x4(&mGridWorld, I);
-    XMStoreFloat4x4(&mView, I);
-    XMStoreFloat4x4(&mProj, I);
 
     XMMATRIX boxScale  = XMMatrixScaling(3.0f, 1.0f, 3.0f);
     XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 0.5f, 0.0f);
@@ -38,57 +36,57 @@ LitSkull::LitSkull(HINSTANCE hInstance)
         XMStoreFloat4x4(&mSphereWorld[i * 2 + 1], XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f));
     }
 
-    mDirLights[0].Ambient   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLights[0].Diffuse   = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    mDirLights[0].Specular  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mDirLights[0].Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
     mDirLights[0].Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
 
-    mDirLights[1].Ambient   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mDirLights[1].Diffuse   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLights[1].Specular  = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
-    mDirLights[1].Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+    mDirLights[1].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[1].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
+    mDirLights[1].Specular = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
+    mDirLights[1].Direction = XMFLOAT3(-0.57735f, -0.57735f, 0.57735f);
 
-    mDirLights[2].Ambient   = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-    mDirLights[2].Diffuse   = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-    mDirLights[2].Specular  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[2].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mDirLights[2].Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
     mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
 
-    mGridMat.Ambient  = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-    mGridMat.Diffuse  = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-    mGridMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+    mGridMat.Ambient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    mGridMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    mGridMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
 
-    mCylinderMat.Ambient  = XMFLOAT4(0.7f, 0.85f, 0.7f, 1.0f);
-    mCylinderMat.Diffuse  = XMFLOAT4(0.7f, 0.85f, 0.7f, 1.0f);
+    mCylinderMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mCylinderMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
 
-    mSphereMat.Ambient  = XMFLOAT4(0.1f, 0.2f, 0.3f, 1.0f);
-    mSphereMat.Diffuse  = XMFLOAT4(0.2f, 0.4f, 0.6f, 1.0f);
+    mSphereMat.Ambient = XMFLOAT4(0.6f, 0.8f, 0.9f, 1.0f);
+    mSphereMat.Diffuse = XMFLOAT4(0.6f, 0.8f, 0.9f, 1.0f);
     mSphereMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
 
-    mBoxMat.Ambient  = XMFLOAT4(0.651f, 0.5f, 0.392f, 1.0f);
-    mBoxMat.Diffuse  = XMFLOAT4(0.651f, 0.5f, 0.392f, 1.0f);
-    mBoxMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+    mBoxMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    mBoxMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
 
-    mSkullMat.Ambient  = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-    mSkullMat.Diffuse  = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    mSkullMat.Ambient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+    mSkullMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
     mSkullMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-
-    XMMATRIX textureScale = XMMatrixScaling(3.0f, 3.0f, 3.0f);
-    XMStoreFloat4x4(&mTexTransform, textureScale);
 }
 
-LitSkull::~LitSkull()
+FirstPersonCamera::~FirstPersonCamera()
 {
     ReleaseCOM(mShapesVertexBuffer);
     ReleaseCOM(mShapesIndexBuffer);
     ReleaseCOM(mSkullVertexBuffer);
     ReleaseCOM(mSkullIndexBuffer);
+    ReleaseCOM(mFloorTexSRV);
+    ReleaseCOM(mStoneTexSRV);
+    ReleaseCOM(mBrickTexSRV);
 
     Effects::DestroyAll();
     InputLayouts::DestroyAll();
 }
 
-bool LitSkull::Init()
+bool FirstPersonCamera::Init()
 {
     if (!D3DApp::Init())
         return false;
@@ -96,9 +94,21 @@ bool LitSkull::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
-    ScratchImage texture;
-    HR(LoadFromDDSFile(L"textures/darkbrickdxt1.dds", DDS_FLAGS_NONE, nullptr, texture));
-    HR(CreateShaderResourceView(md3dDevice, texture.GetImages(), texture.GetImageCount(), texture.GetMetadata(), &mDiffuseMapSRV));
+    ScratchImage floor;
+    HR(LoadFromDDSFile(L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, floor));
+    HR(CreateShaderResourceView(md3dDevice, floor.GetImages(), floor.GetImageCount(), floor.GetMetadata(), &mFloorTexSRV));
+
+    ScratchImage stone;
+    HR(LoadFromDDSFile(L"textures/stone.dds", DDS_FLAGS_NONE, nullptr, stone));
+    HR(CreateShaderResourceView(md3dDevice, stone.GetImages(), stone.GetImageCount(), stone.GetMetadata(), &mStoneTexSRV));
+
+    ScratchImage bricks;
+    HR(LoadFromDDSFile(L"textures/bricks.dds", DDS_FLAGS_NONE, nullptr, bricks));
+    HR(CreateShaderResourceView(md3dDevice, bricks.GetImages(), bricks.GetImageCount(), bricks.GetMetadata(), &mBrickTexSRV));
+
+    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, &mFloorTexSRV);
+    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/stone.dds", DDS_FLAGS_NONE, nullptr, &mStoneTexSRV);
+    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/bricks.dds", DDS_FLAGS_NONE, nullptr, &mBrickTexSRV);
 
     BuildShapeGeometryBuffers();
     BuildSkullGeometryBuffers();
@@ -106,28 +116,23 @@ bool LitSkull::Init()
     return true;
 }
 
-void LitSkull::OnResize()
+void FirstPersonCamera::OnResize()
 {
     D3DApp::OnResize();
 
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
-    XMStoreFloat4x4(&mProj, P);
+    mCam.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
-void LitSkull::UpdateScene(float dt)
+void FirstPersonCamera::UpdateScene(float dt)
 {
-    float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    float y = mRadius * cosf(mPhi);
-
-    mEyePosW = XMFLOAT3(x, y, z);
-
-    XMVECTOR pos    = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up     = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-    XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
-    XMStoreFloat4x4(&mView, V);
+    if (GetAsyncKeyState('W') & 0x8000)
+        mCam.Walk(10.0f * dt);
+    if (GetAsyncKeyState('S') & 0x8000)
+        mCam.Walk(-10.0f * dt);
+    if (GetAsyncKeyState('A') & 0x8000)
+        mCam.Strafe(-10.0f * dt);
+    if (GetAsyncKeyState('D') & 0x8000)
+        mCam.Strafe(10.0f * dt);
 
     if (GetAsyncKeyState('0') & 0x8000)
         mLightCount = 0;
@@ -139,9 +144,9 @@ void LitSkull::UpdateScene(float dt)
         mLightCount = 3;
 }
 
-void LitSkull::DrawScene()
+void FirstPersonCamera::DrawScene()
 {
-    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
+    md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Silver));
     md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
     md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
@@ -150,28 +155,34 @@ void LitSkull::DrawScene()
     UINT stride = sizeof(Vertex::Basic32);
     UINT offset = 0;
 
-    XMMATRIX view = XMLoadFloat4x4(&mView);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
+    mCam.UpdateViewMatrix();
+
+    XMMATRIX view = mCam.View();
+    XMMATRIX proj = mCam.Proj();
     
     Effects::BasicFX->SetDirLights(mDirLights);
-    Effects::BasicFX->SetEyePosW(mEyePosW);
+    Effects::BasicFX->SetEyePosW(mCam.GetPosition());
     
-    ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light1Tech;
+    ID3DX11EffectTechnique* activeTexTech   = Effects::BasicFX->Light1TexTech;
+    ID3DX11EffectTechnique* activeSkullTech = Effects::BasicFX->Light1Tech;
     switch (mLightCount)
     {
     case 1:
-        activeTech = Effects::BasicFX->Light1Tech;
+        activeTexTech = Effects::BasicFX->Light1TexTech;
+        activeSkullTech = Effects::BasicFX->Light1Tech;
         break;
     case 2:
-        activeTech = Effects::BasicFX->Light2Tech;
+        activeTexTech = Effects::BasicFX->Light2TexTech;
+        activeSkullTech = Effects::BasicFX->Light2Tech;
         break;
     case 3:
-        activeTech = Effects::BasicFX->Light3Tech;
+        activeTexTech = Effects::BasicFX->Light3TexTech;
+        activeSkullTech = Effects::BasicFX->Light3Tech;
         break;
     }
 
     D3DX11_TECHNIQUE_DESC techDesc;
-    activeTech->GetDesc(&techDesc);
+    activeTexTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mShapesVertexBuffer, &stride, &offset);
@@ -185,11 +196,11 @@ void LitSkull::DrawScene()
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
+        Effects::BasicFX->SetTexTransform(XMMatrixScaling(6.0f, 8.0f, 1.0f));
         Effects::BasicFX->SetMaterial(mGridMat);
-        Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+        Effects::BasicFX->SetDiffuseMap(mFloorTexSRV);
 
-        activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
 
         // Box
@@ -200,11 +211,11 @@ void LitSkull::DrawScene()
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
+        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
         Effects::BasicFX->SetMaterial(mBoxMat);
-        Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+        Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
 
-        activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
 
         // Cylinders
@@ -217,11 +228,11 @@ void LitSkull::DrawScene()
             Effects::BasicFX->SetWorld(world);
             Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
             Effects::BasicFX->SetWorldViewProj(worldViewProj);
-            Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
+            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
             Effects::BasicFX->SetMaterial(mCylinderMat);
-            Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+            Effects::BasicFX->SetDiffuseMap(mBrickTexSRV);
 
-            activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
         }
 
@@ -235,11 +246,11 @@ void LitSkull::DrawScene()
             Effects::BasicFX->SetWorld(world);
             Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
             Effects::BasicFX->SetWorldViewProj(worldViewProj);
-            Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
+            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
             Effects::BasicFX->SetMaterial(mSphereMat);
-            Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+            Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
 
-            activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
         }
 
@@ -254,10 +265,9 @@ void LitSkull::DrawScene()
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
         Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
         Effects::BasicFX->SetMaterial(mSkullMat);
 
-        activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        activeSkullTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
     }
 
@@ -265,7 +275,7 @@ void LitSkull::DrawScene()
 }
 
 
-void LitSkull::OnMouseDown(WPARAM btnState, int x, int y)
+void FirstPersonCamera::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -273,12 +283,12 @@ void LitSkull::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void LitSkull::OnMouseUp(WPARAM btnState, int x, int y)
+void FirstPersonCamera::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void LitSkull::OnMouseMove(WPARAM btnState, int x, int y)
+void FirstPersonCamera::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if ((btnState & MK_LBUTTON) != 0)
     {
@@ -286,31 +296,15 @@ void LitSkull::OnMouseMove(WPARAM btnState, int x, int y)
         float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
         float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
 
-        // Update angles based on input to orbit camera around box.
-        mTheta += dx;
-        mPhi += dy;
-
-        // Restrict the angle mPhi.
-        mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-    }
-    else if ((btnState & MK_RBUTTON) != 0)
-    {
-        // Make each pixel correspond to 0.01 unit in the scene.
-        float dx = 0.01f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.01f * static_cast<float>(y - mLastMousePos.y);
-
-        // Update the camera radius based on input.
-        mRadius += dx - dy;
-
-        // Restrict the radius.
-        mRadius = MathHelper::Clamp(mRadius, 3.0f, 200.0f);
+        mCam.Pitch(dy);
+        mCam.RotateY(dx);
     }
 
     mLastMousePos.x = x;
     mLastMousePos.y = y;
 }
 
-void LitSkull::BuildShapeGeometryBuffers()
+void FirstPersonCamera::BuildShapeGeometryBuffers()
 {
     GeometryGenerator::MeshData box;
     GeometryGenerator::MeshData grid;
@@ -407,7 +401,7 @@ void LitSkull::BuildShapeGeometryBuffers()
     HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mShapesIndexBuffer));
 }
 
-void LitSkull::BuildSkullGeometryBuffers()
+void FirstPersonCamera::BuildSkullGeometryBuffers()
 {
     std::ifstream fin("models/skull.txt");
 

@@ -1,11 +1,11 @@
-#include "LitSkull.h"
+#include "FirstPersonCamera.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    LitSkull litSkull(hInstance);
+    FirstPersonCamera fpc(hInstance);
 
-    if (!litSkull.Init())
+    if (!fpc.Init())
         return 0;
 
-    return litSkull.Run();
+    return fpc.Run();
 }

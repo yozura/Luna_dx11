@@ -36,6 +36,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter13. Tessellation Stage](chapter13/)__<details><summary>Demo Pictures</summary>
 ![chapter13-tess.gif](resources/chapter13/tess.gif)</details>
 
+> __[Chapter14. First Person Camera](chapter14/)__<details><summary>Demo Pictures</summary>
+![chapter14-fpc.gif](resources/chapter14/fpc.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`

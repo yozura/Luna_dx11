@@ -7,12 +7,13 @@
 #include "MathHelper.h"
 #include "Effects.h"
 #include "Vertex.h"
+#include "Camera.h"
 
-class LitSkull : public D3DApp
+class FirstPersonCamera : public D3DApp
 {
 public:
-    LitSkull(HINSTANCE hInstance);
-    ~LitSkull();
+    FirstPersonCamera(HINSTANCE hInstance);
+    ~FirstPersonCamera();
 
 	bool Init();
 	void OnResize();
@@ -33,6 +34,10 @@ private:
 
 	ID3D11Buffer* mSkullVertexBuffer;
 	ID3D11Buffer* mSkullIndexBuffer;
+
+    ID3D11ShaderResourceView* mFloorTexSRV;
+    ID3D11ShaderResourceView* mStoneTexSRV;
+    ID3D11ShaderResourceView* mBrickTexSRV;
 	
 	DirectionalLight mDirLights[3];
 	Material mGridMat;
@@ -46,12 +51,6 @@ private:
 	DirectX::XMFLOAT4X4 mBoxWorld;
 	DirectX::XMFLOAT4X4 mGridWorld;
 	DirectX::XMFLOAT4X4 mSkullWorld;
-	DirectX::XMFLOAT4X4 mTexTransform;
-
-	DirectX::XMFLOAT4X4 mView;
-	DirectX::XMFLOAT4X4 mProj;
-
-	ID3D11ShaderResourceView* mDiffuseMapSRV;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -72,11 +71,7 @@ private:
 
 	UINT mLightCount;
 
-	DirectX::XMFLOAT3 mEyePosW;
-
-	float mTheta;
-	float mPhi;
-	float mRadius;
+    Camera mCam;
 
 	POINT mLastMousePos;
 };
