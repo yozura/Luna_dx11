@@ -134,6 +134,11 @@ void FirstPersonCamera::UpdateScene(float dt)
     if (GetAsyncKeyState('D') & 0x8000)
         mCam.Strafe(10.0f * dt);
 
+    if (GetAsyncKeyState('R') & 0x8000)
+        mCam.Roll(dt * MathHelper::Pi);
+    if (GetAsyncKeyState('T') & 0x8000)
+        mCam.Roll(-dt * MathHelper::Pi);
+
     if (GetAsyncKeyState('0') & 0x8000)
         mLightCount = 0;
     if (GetAsyncKeyState('1') & 0x8000)
