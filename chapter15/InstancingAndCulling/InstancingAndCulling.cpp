@@ -291,12 +291,25 @@ void InstancingAndCulling::BuildSkullGeometryBuffers()
     fin >> ignore >> tCount;
     fin >> ignore >> ignore >> ignore >> ignore;
 
+    XMFLOAT3 vMinf3(+MathHelper::Infinity, +MathHelper::Infinity, +MathHelper::Infinity);
+    XMFLOAT3 vMaxf3(-MathHelper::Infinity, -MathHelper::Infinity, -MathHelper::Infinity);
+
+    XMVECTOR vMin = XMLoadFloat3(&vMinf3);
+    XMVECTOR vMax = XMLoadFloat3(&vMaxf3);
+    
     std::vector<Vertex::Basic32> vertices(vCount);
     for (UINT i = 0; i < vCount; ++i)
     {
         fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
         fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+
+        XMVECTOR P = XMLoadFloat3(&vertices[i].Pos);
+        vMin = XMVectorMin(vMin, P);
+        vMax = XMVectorMax(vMax, P);
     }
+
+    XMStoreFloat3(&mSkullBox.Center,  0.5f * (vMin + vMax));
+    XMStoreFloat3(&mSkullBox.Extents, 0.5f * (vMax - vMin));
 
     fin >> ignore >> ignore >> ignore;
 
