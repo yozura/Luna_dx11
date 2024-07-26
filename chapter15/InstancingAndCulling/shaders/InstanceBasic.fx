@@ -116,8 +116,8 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure, unifo
             float4 A, D, S;
             ComputeDirectionalLight(gMaterial, gDirLights[i], pin.NormalW, toEye, A, D, S);
 
-            ambient += A;
-            diffuse += D;
+            ambient += A * pin.Color;
+            diffuse += D * pin.Color;
             spec    += S;
         }
 

@@ -37,7 +37,10 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter13-tess.gif](resources/chapter13/tess.gif)</details>
 
 > __[Chapter14. First Person Camera](chapter14/)__<details><summary>Demo Pictures</summary>
-![chapter14-fpc.gif](resources/chapter14/fpc.PNG)</details>
+![chapter14-fpc.png](resources/chapter14/fpc.PNG)</details>
+
+> __[Chapter15. Instancing and Culling](chapter15/)__<details><summary>Demo Pictures</summary>
+![chapter15-iac.png](resources/chapter15/iac.PNG)</details>
 
 ## Diffrence from a book.
 

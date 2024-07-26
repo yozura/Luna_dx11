@@ -113,9 +113,7 @@ void InstancingAndCulling::UpdateScene(float dt)
             XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
 
             // Decompose the matrix into its individual parts.
-            XMVECTOR scale;
-            XMVECTOR rotQuat;
-            XMVECTOR translation;
+            XMVECTOR scale, rotQuat, translation;
             XMMatrixDecompose(&scale, &rotQuat, &translation, toLocal);
 
             BoundingFrustum localSpaceFrustum;
@@ -277,7 +275,7 @@ void InstancingAndCulling::BuildInstancedBuffer()
 
 void InstancingAndCulling::BuildSkullGeometryBuffers()
 {
-    std::ifstream fin("models/car.txt");
+    std::ifstream fin("models/skull.txt");
 
     if (!fin)
     {
