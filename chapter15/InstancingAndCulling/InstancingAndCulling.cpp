@@ -119,7 +119,7 @@ void InstancingAndCulling::UpdateScene(float dt)
             BoundingFrustum localSpaceFrustum;
             mCamFrustum.Transform(localSpaceFrustum, XMVectorGetX(scale), rotQuat, translation);
             
-            if (localSpaceFrustum.Intersects(mSkullBox))
+            if (localSpaceFrustum.Intersects(mSkullSphere))
             {
                 dataView[mVisibleObjectCount++] = mInstancedData[i];
             }
@@ -296,7 +296,7 @@ void InstancingAndCulling::BuildSkullGeometryBuffers()
 
     XMVECTOR vMin = XMLoadFloat3(&vMinf3);
     XMVECTOR vMax = XMLoadFloat3(&vMaxf3);
-    
+
     std::vector<Vertex::Basic32> vertices(vCount);
     for (UINT i = 0; i < vCount; ++i)
     {
@@ -308,8 +308,14 @@ void InstancingAndCulling::BuildSkullGeometryBuffers()
         vMax = XMVectorMax(vMax, P);
     }
 
-    XMStoreFloat3(&mSkullBox.Center,  0.5f * (vMin + vMax));
-    XMStoreFloat3(&mSkullBox.Extents, 0.5f * (vMax - vMin));
+    XMStoreFloat3(&mSkullSphere.Center, 0.5f * (vMin + vMax));
+    XMVECTOR vCenter = XMVectorSet(mSkullSphere.Center.x,
+                                   mSkullSphere.Center.y,
+                                   mSkullSphere.Center.z, 1.0f);
+
+    XMVECTOR vDistance = XMVector3Length(XMVectorSubtract(vCenter, vMax));
+    
+    mSkullSphere.Radius = XMVectorGetX(vDistance);
 
     fin >> ignore >> ignore >> ignore;
 

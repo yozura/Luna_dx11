@@ -41,7 +41,7 @@ private:
     ID3D11Buffer* mSkullIB;
     ID3D11Buffer* mInstancedBuffer;
 
-    DirectX::BoundingBox     mSkullBox;
+    DirectX::BoundingSphere  mSkullSphere;
     DirectX::BoundingFrustum mCamFrustum;
 
     UINT mVisibleObjectCount;
