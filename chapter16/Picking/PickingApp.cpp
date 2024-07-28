@@ -212,6 +212,11 @@ void PickingApp::BuildMeshGeometryBuffers()
     {
         fin >> mMeshVertices[i].Pos.x    >> mMeshVertices[i].Pos.y    >> mMeshVertices[i].Pos.z;
         fin >> mMeshVertices[i].Normal.x >> mMeshVertices[i].Normal.y >> mMeshVertices[i].Normal.z;
+
+        XMVECTOR P = XMLoadFloat3(&mMeshVertices[i].Pos);
+        
+        vMin = XMVectorMin(vMin, P);
+        vMax = XMVectorMax(vMax, P);
     }
 
     XMStoreFloat3(&mMeshBox.Center, 0.5f * (vMin + vMax));
