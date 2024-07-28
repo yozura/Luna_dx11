@@ -36,7 +36,7 @@ private:
     std::vector<Vertex::Basic32> mMeshVertices;
     std::vector<UINT> mMeshIndices;
 
-    DirectX::BoundingBox mMeshBox;
+    DirectX::BoundingSphere mMeshSphere;
 
 	DirectionalLight mDirLights[3];
 	Material mMeshMat;

@@ -104,7 +104,6 @@ void PickingApp::DrawScene()
     Effects::BasicFX->SetDirLights(mDirLights);
     Effects::BasicFX->SetEyePosW(mCam.GetPosition());
     
-
     ID3DX11EffectTechnique* activeMeshTech = Effects::BasicFX->Light3Tech;
 
     D3DX11_TECHNIQUE_DESC techDesc;
@@ -219,8 +218,15 @@ void PickingApp::BuildMeshGeometryBuffers()
         vMax = XMVectorMax(vMax, P);
     }
 
-    XMStoreFloat3(&mMeshBox.Center, 0.5f * (vMin + vMax));
-    XMStoreFloat3(&mMeshBox.Extents, 0.5f * (vMax - vMin));
+    XMStoreFloat3(&mMeshSphere.Center, 0.5f * (vMin + vMax));
+
+    XMVECTOR vCenter = XMVectorSet(mMeshSphere.Center.x, 
+                                   mMeshSphere.Center.y,
+                                   mMeshSphere.Center.z, 1.0f);
+
+    XMVECTOR vDistance = XMVector3Length(XMVectorSubtract(vCenter, vMax));
+
+    mMeshSphere.Radius = XMVectorGetX(vDistance);
 
     fin >> ignore >> ignore >> ignore;
 
@@ -289,7 +295,7 @@ void PickingApp::Pick(int sx, int sy)
 
     mPickedTriangle = -1;
     float tMin = 0.0f;
-    if (mMeshBox.Intersects(rayOrigin, rayDir, tMin))
+    if (mMeshSphere.Intersects(rayOrigin, rayDir, tMin))
     {
         tMin = MathHelper::Infinity;
         for (UINT i = 0; i < mMeshIndices.size() / 3; ++i)
