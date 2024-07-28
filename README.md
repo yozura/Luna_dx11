@@ -43,7 +43,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter15-iac.png](resources/chapter15/iac.PNG)</details>
 
 > __[Chapter16. Picking](chapter16/)__<details><summary>Demo Pictures</summary>
-![chapter16-picking.png](resources/chapter16/picking.PNG)</details>
+![chapter16-picking.png](resources/chapter16/picking.PNG)
+![chapter16-slaps.png](resources/chapter16/slaps.PNG)</details>
 
 ## Diffrence from a book.
 
@@ -52,3 +53,6 @@ The `Effects11.lib` library provided in the book is  built for Visual Studio 201
 
 ### 2. `DirectXTex.lib`
 According to MSDN, `D3DX11CreateShaderResourceViewFromFile` function and the D3DX utility library are deprecated in Windows 8 and later versions. To replace them, build the [DirectXTex](https://github.com/microsoft/DirectXTex) project and link it as a new library.
+
+### 3. `DirectXCollision.h`
+In this code, we use the `DirectXCollision.h` header file instead of the `xnacollision.h` header file used in the book. Therefore, functions used in the demo, such as `XNA::IntersectRayTriangle`, are replaced with `TriangleTests::Intersects`.

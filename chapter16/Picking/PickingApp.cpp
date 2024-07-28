@@ -5,6 +5,7 @@ using namespace DirectX;
 PickingApp::PickingApp(HINSTANCE hInstance)
     : D3DApp(hInstance)
     , mMeshVB(0), mMeshIB(0)
+    , mBoundingBoxVB(0), mBoundingBoxIB(0)
     , mMeshIndexCount(0), mPickedTriangle(-1)
 {
     mMainWndCaption = L"Picking";
@@ -37,6 +38,10 @@ PickingApp::PickingApp(HINSTANCE hInstance)
     mMeshMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
     mMeshMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
 
+    mBoundingBoxMat.Ambient = XMFLOAT4(1.0f, 0.1f, 0.1f, 1.0f);
+    mBoundingBoxMat.Diffuse = XMFLOAT4(1.0f, 0.1f, 0.1f, 1.0f);
+    mBoundingBoxMat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
+
     mPickedTriangleMat.Ambient = XMFLOAT4(0.0f, 0.8f, 0.4f, 1.0f);
     mPickedTriangleMat.Diffuse = XMFLOAT4(0.0f, 0.8f, 0.4f, 1.0f);
     mPickedTriangleMat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 16.0f);
@@ -62,6 +67,7 @@ bool PickingApp::Init()
     RenderStates::InitAll(md3dDevice);
 
     BuildMeshGeometryBuffers();
+    BuildBoundingBoxBuffer();
 
     return true;
 }
@@ -140,6 +146,28 @@ void PickingApp::DrawScene()
 
             md3dImmediateContext->OMSetDepthStencilState(0, 0);
         }
+    }
+
+    activeMeshTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
+
+        md3dImmediateContext->IASetVertexBuffers(0, 1, &mBoundingBoxVB, &stride, &offset);
+        md3dImmediateContext->IASetIndexBuffer(mBoundingBoxIB, DXGI_FORMAT_R32_UINT, 0);
+
+        md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+        XMMATRIX world = XMLoadFloat4x4(&mMeshWorld);
+        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+        XMMATRIX worldViewProj = world * view * proj;
+
+        Effects::BasicFX->SetWorld(world);
+        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+        Effects::BasicFX->SetWorldViewProj(worldViewProj);
+        Effects::BasicFX->SetMaterial(mBoundingBoxMat);
+
+        activeMeshTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(24, 0, 0);
     }
 
     HR(mSwapChain->Present(0, 0));
@@ -258,6 +286,56 @@ void PickingApp::BuildMeshGeometryBuffers()
     iInitData.pSysMem = &mMeshIndices[0];
 
     HR(md3dDevice->CreateBuffer(&ibd, &iInitData, &mMeshIB));
+}
+
+void PickingApp::BuildBoundingBoxBuffer()
+{
+    XMFLOAT3 boxMin, boxMax;
+    XMStoreFloat3(&boxMin, mMeshBoxMin);
+    XMStoreFloat3(&boxMax, mMeshBoxMax);
+
+    std::vector<Vertex::Basic32> vertices(8);
+    vertices[0].Pos = XMFLOAT3(boxMin.x, boxMin.y, boxMin.z);
+    vertices[1].Pos = XMFLOAT3(boxMax.x, boxMin.y, boxMin.z);
+    vertices[2].Pos = XMFLOAT3(boxMin.x, boxMax.y, boxMin.z);
+    vertices[3].Pos = XMFLOAT3(boxMax.x, boxMax.y, boxMin.z);
+    vertices[4].Pos = XMFLOAT3(boxMin.x, boxMin.y, boxMax.z);
+    vertices[5].Pos = XMFLOAT3(boxMax.x, boxMin.y, boxMax.z);
+    vertices[6].Pos = XMFLOAT3(boxMin.x, boxMax.y, boxMax.z);
+    vertices[7].Pos = XMFLOAT3(boxMax.x, boxMax.y, boxMax.z);
+
+    D3D11_BUFFER_DESC vbd;
+    vbd.Usage = D3D11_USAGE_IMMUTABLE;
+    vbd.ByteWidth = sizeof(Vertex::Basic32) * vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbd.CPUAccessFlags = 0;
+    vbd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA vInitData;
+    vInitData.pSysMem = &vertices[0];
+
+    HR(md3dDevice->CreateBuffer(&vbd, &vInitData, &mBoundingBoxVB));
+
+    UINT indices[] = {
+        // front face
+        0, 1, 1, 3, 3, 2, 2, 0,
+        // back face
+        4, 5, 5, 7, 7, 6, 6, 4,
+        // connecting edges
+        0, 4, 1, 5, 2, 6, 3, 7
+    };
+
+    D3D11_BUFFER_DESC ibd;
+    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+    ibd.ByteWidth = sizeof(UINT) * 24;
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibd.CPUAccessFlags = 0;
+    ibd.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA iinitData;
+    iinitData.pSysMem = indices;
+
+    HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoundingBoxIB));
 }
 
 void PickingApp::Pick(int sx, int sy)
