@@ -28,6 +28,11 @@ public:
 private:
     void BuildMeshGeometryBuffers();
     void Pick(int sx, int sy);
+    bool Slaps(DirectX::XMVECTOR rayOrigin,
+               DirectX::XMVECTOR rayDir,
+               DirectX::XMVECTOR boxMin,
+               DirectX::XMVECTOR boxMax,
+               float& tMin);
 
 private:
     ID3D11Buffer* mMeshVB;
@@ -36,7 +41,10 @@ private:
     std::vector<Vertex::Basic32> mMeshVertices;
     std::vector<UINT> mMeshIndices;
 
-    DirectX::BoundingSphere mMeshSphere;
+    DirectX::BoundingBox mMeshBox;
+
+    DirectX::XMVECTOR mMeshBoxMin;
+    DirectX::XMVECTOR mMeshBoxMax;
 
 	DirectionalLight mDirLights[3];
 	Material mMeshMat;

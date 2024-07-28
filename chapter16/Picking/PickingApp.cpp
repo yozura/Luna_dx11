@@ -218,15 +218,11 @@ void PickingApp::BuildMeshGeometryBuffers()
         vMax = XMVectorMax(vMax, P);
     }
 
-    XMStoreFloat3(&mMeshSphere.Center, 0.5f * (vMin + vMax));
+    mMeshBoxMin = vMin;
+    mMeshBoxMax = vMax;
 
-    XMVECTOR vCenter = XMVectorSet(mMeshSphere.Center.x, 
-                                   mMeshSphere.Center.y,
-                                   mMeshSphere.Center.z, 1.0f);
-
-    XMVECTOR vDistance = XMVector3Length(XMVectorSubtract(vCenter, vMax));
-
-    mMeshSphere.Radius = XMVectorGetX(vDistance);
+    XMStoreFloat3(&mMeshBox.Center,  0.5f * (vMin + vMax));
+    XMStoreFloat3(&mMeshBox.Extents, 0.5f * (vMax - vMin));
 
     fin >> ignore >> ignore >> ignore;
 
@@ -295,8 +291,9 @@ void PickingApp::Pick(int sx, int sy)
 
     mPickedTriangle = -1;
     float tMin = 0.0f;
-    if (mMeshSphere.Intersects(rayOrigin, rayDir, tMin))
+    if (Slaps(rayOrigin, rayDir, mMeshBoxMin, mMeshBoxMax, tMin))
     {
+        OutputDebugStringA("The ray intersects the box.\n");
         tMin = MathHelper::Infinity;
         for (UINT i = 0; i < mMeshIndices.size() / 3; ++i)
         {
@@ -324,4 +321,43 @@ void PickingApp::Pick(int sx, int sy)
 
         }
     }
+    else
+    {
+        OutputDebugStringA("The ray does not intersect the box.\n");
+    }
+}
+
+bool PickingApp::Slaps(DirectX::XMVECTOR rayOrigin,
+                       DirectX::XMVECTOR rayDir,
+                       DirectX::XMVECTOR boxMin,
+                       DirectX::XMVECTOR boxMax,
+                       float& tMin)
+{
+    float t1, t2;
+    float stMin = -MathHelper::Infinity;
+    float stMax = +MathHelper::Infinity;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        if (rayDir.m128_f32[i] != 0.0f)
+        {
+            t1 = (boxMin.m128_f32[i] - rayOrigin.m128_f32[i]) / rayDir.m128_f32[i];
+            t2 = (boxMax.m128_f32[i] - rayOrigin.m128_f32[i]) / rayDir.m128_f32[i];
+
+            if (t1 > t2)
+                std::swap(t1, t2);
+
+            stMin = MathHelper::Max(stMin, t1);
+            stMax = MathHelper::Min(stMax, t2);
+        }
+        else
+        {
+            if (rayOrigin.m128_f32[i] < boxMin.m128_f32[i] || rayOrigin.m128_f32[i] > boxMax.m128_f32[i])
+                return false;
+        }
+    }
+
+    tMin = stMin;
+
+    return stMax >= stMin && stMax >= 0.0f;
 }
