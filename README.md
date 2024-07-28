@@ -42,6 +42,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter15. Instancing and Culling](chapter15/)__<details><summary>Demo Pictures</summary>
 ![chapter15-iac.png](resources/chapter15/iac.PNG)</details>
 
+> __[Chapter16. Picking](chapter16/)__<details><summary>Demo Pictures</summary>
+![chapter16-picking.png](resources/chapter16/picking.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
