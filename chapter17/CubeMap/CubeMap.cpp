@@ -54,26 +54,33 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mGridMat.Ambient = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
     mGridMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
     mGridMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mGridMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
     mCylinderMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mCylinderMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    mSphereMat.Ambient = XMFLOAT4(0.6f, 0.8f, 0.9f, 1.0f);
-    mSphereMat.Diffuse = XMFLOAT4(0.6f, 0.8f, 0.9f, 1.0f);
+    mSphereMat.Ambient = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
+    mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
     mSphereMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
+    mSphereMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
     mBoxMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mBoxMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    mSkullMat.Ambient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
-    mSkullMat.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+    mSkullMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mSkullMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mSkullMat.Reflect = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 }
 
 CubeMap::~CubeMap()
 {
+    SafeDelete(mSky);
+
     ReleaseCOM(mShapesVB);
     ReleaseCOM(mShapesIB);
     ReleaseCOM(mSkullVB);
@@ -94,6 +101,8 @@ bool CubeMap::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
+    mSky = new Sky(md3dDevice, L"textures/cloudycube1024.dds", 5000.0f);
+
     ScratchImage floor;
     HR(LoadFromDDSFile(L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, floor));
     HR(CreateShaderResourceView(md3dDevice, floor.GetImages(), floor.GetImageCount(), floor.GetMetadata(), &mFloorTexSRV));
@@ -105,10 +114,6 @@ bool CubeMap::Init()
     ScratchImage bricks;
     HR(LoadFromDDSFile(L"textures/bricks.dds", DDS_FLAGS_NONE, nullptr, bricks));
     HR(CreateShaderResourceView(md3dDevice, bricks.GetImages(), bricks.GetImageCount(), bricks.GetMetadata(), &mBrickTexSRV));
-
-    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, &mFloorTexSRV);
-    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/stone.dds", DDS_FLAGS_NONE, nullptr, &mStoneTexSRV);
-    //D3DHelper::LoadTexture2DFromDDSFile(md3dDevice, L"textures/bricks.dds", DDS_FLAGS_NONE, nullptr, &mBrickTexSRV);
 
     BuildShapeGeometryBuffers();
     BuildSkullGeometryBuffers();
@@ -133,11 +138,6 @@ void CubeMap::UpdateScene(float dt)
         mCam.Strafe(-10.0f * dt);
     if (GetAsyncKeyState('D') & 0x8000)
         mCam.Strafe(10.0f * dt);
-
-    if (GetAsyncKeyState('R') & 0x8000)
-        mCam.Roll(dt * MathHelper::Pi);
-    if (GetAsyncKeyState('T') & 0x8000)
-        mCam.Roll(-dt * MathHelper::Pi);
 
     if (GetAsyncKeyState('0') & 0x8000)
         mLightCount = 0;
@@ -167,25 +167,35 @@ void CubeMap::DrawScene()
     
     Effects::BasicFX->SetDirLights(mDirLights);
     Effects::BasicFX->SetEyePosW(mCam.GetPosition());
+    Effects::BasicFX->SetCubeMap(mSky->CubeMapSRV());
     
-    ID3DX11EffectTechnique* activeTexTech   = Effects::BasicFX->Light1TexTech;
-    ID3DX11EffectTechnique* activeSkullTech = Effects::BasicFX->Light1Tech;
+    ID3DX11EffectTechnique* activeTexTech     = Effects::BasicFX->Light1TexTech;
+    ID3DX11EffectTechnique* activeReflectTech = Effects::BasicFX->Light1TexReflectTech;
+    ID3DX11EffectTechnique* activeSkullTech   = Effects::BasicFX->Light1ReflectTech;
     switch (mLightCount)
     {
     case 1:
         activeTexTech = Effects::BasicFX->Light1TexTech;
-        activeSkullTech = Effects::BasicFX->Light1Tech;
+        activeReflectTech = Effects::BasicFX->Light1TexReflectTech;
+        activeSkullTech = Effects::BasicFX->Light1ReflectTech;
         break;
     case 2:
         activeTexTech = Effects::BasicFX->Light2TexTech;
-        activeSkullTech = Effects::BasicFX->Light2Tech;
+        activeReflectTech = Effects::BasicFX->Light2TexReflectTech;
+        activeSkullTech = Effects::BasicFX->Light2ReflectTech;
         break;
     case 3:
         activeTexTech = Effects::BasicFX->Light3TexTech;
-        activeSkullTech = Effects::BasicFX->Light3Tech;
+        activeReflectTech = Effects::BasicFX->Light3TexReflectTech;
+        activeSkullTech = Effects::BasicFX->Light3ReflectTech;
         break;
     }
 
+    XMMATRIX world;
+    XMMATRIX worldInvTranspose;
+    XMMATRIX worldViewProj;
+
+    // Draw the grid, cylinders, and box without any cubemap reflection.
     D3DX11_TECHNIQUE_DESC techDesc;
     activeTexTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
@@ -194,9 +204,9 @@ void CubeMap::DrawScene()
         md3dImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
 
         // Grid
-        XMMATRIX world = XMLoadFloat4x4(&mGridWorld);
-        XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-        XMMATRIX worldViewProj = world * view * proj;
+        world = XMLoadFloat4x4(&mGridWorld);
+        worldInvTranspose = MathHelper::InverseTranspose(world);
+        worldViewProj = world * view * proj;
 
         Effects::BasicFX->SetWorld(world);
         Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
@@ -240,7 +250,12 @@ void CubeMap::DrawScene()
             activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
         }
+    }
 
+    // Draw the sphere with cubemap reflection.
+    activeReflectTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
         // Sphere
         for (UINT i = 0; i < 10; ++i)
         {
@@ -255,10 +270,15 @@ void CubeMap::DrawScene()
             Effects::BasicFX->SetMaterial(mSphereMat);
             Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
 
-            activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
         }
+    }
 
+    // Draw the skull.
+    activeSkullTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
         // Skull
         md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
         md3dImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
@@ -275,6 +295,12 @@ void CubeMap::DrawScene()
         activeSkullTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
     }
+
+    mSky->Draw(md3dImmediateContext, mCam);
+
+    // restore default states. as the SkyFX changes them in the effect file.
+    md3dImmediateContext->RSSetState(0);
+    md3dImmediateContext->OMSetDepthStencilState(0, 0);
 
     HR(mSwapChain->Present(0, 0));
 }

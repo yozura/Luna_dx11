@@ -27,14 +27,14 @@ Effect::~Effect()
 BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
     : Effect(device, filename)
 {
-    Light1Tech        = mFX->GetTechniqueByName("Light1");
-    Light2Tech        = mFX->GetTechniqueByName("Light2");
-    Light3Tech        = mFX->GetTechniqueByName("Light3");
+    Light1Tech = mFX->GetTechniqueByName("Light1");
+    Light2Tech = mFX->GetTechniqueByName("Light2");
+    Light3Tech = mFX->GetTechniqueByName("Light3");
 
-    Light0TexTech     = mFX->GetTechniqueByName("Light0Tex");
-    Light1TexTech     = mFX->GetTechniqueByName("Light1Tex");
-    Light2TexTech     = mFX->GetTechniqueByName("Light2Tex");
-    Light3TexTech     = mFX->GetTechniqueByName("Light3Tex");
+    Light0TexTech = mFX->GetTechniqueByName("Light0Tex");
+    Light1TexTech = mFX->GetTechniqueByName("Light1Tex");
+    Light2TexTech = mFX->GetTechniqueByName("Light2Tex");
+    Light3TexTech = mFX->GetTechniqueByName("Light3Tex");
 
     Light0TexAlphaClipTech = mFX->GetTechniqueByName("Light0TexAlphaClip");
     Light1TexAlphaClipTech = mFX->GetTechniqueByName("Light1TexAlphaClip");
@@ -55,6 +55,34 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
     Light2TexAlphaClipFogTech = mFX->GetTechniqueByName("Light2TexAlphaClipFog");
     Light3TexAlphaClipFogTech = mFX->GetTechniqueByName("Light3TexAlphaClipFog");
 
+    Light1ReflectTech = mFX->GetTechniqueByName("Light1Reflect");
+    Light2ReflectTech = mFX->GetTechniqueByName("Light2Reflect");
+    Light3ReflectTech = mFX->GetTechniqueByName("Light3Reflect");
+
+    Light0TexReflectTech = mFX->GetTechniqueByName("Light0TexReflect");
+    Light1TexReflectTech = mFX->GetTechniqueByName("Light1TexReflect");
+    Light2TexReflectTech = mFX->GetTechniqueByName("Light2TexReflect");
+    Light3TexReflectTech = mFX->GetTechniqueByName("Light3TexReflect");
+
+    Light0TexAlphaClipReflectTech = mFX->GetTechniqueByName("Light0TexAlphaClipReflect");
+    Light1TexAlphaClipReflectTech = mFX->GetTechniqueByName("Light1TexAlphaClipReflect");
+    Light2TexAlphaClipReflectTech = mFX->GetTechniqueByName("Light2TexAlphaClipReflect");
+    Light3TexAlphaClipReflectTech = mFX->GetTechniqueByName("Light3TexAlphaClipReflect");
+
+    Light1FogReflectTech = mFX->GetTechniqueByName("Light1FogReflect");
+    Light2FogReflectTech = mFX->GetTechniqueByName("Light2FogReflect");
+    Light3FogReflectTech = mFX->GetTechniqueByName("Light3FogReflect");
+
+    Light0TexFogReflectTech = mFX->GetTechniqueByName("Light0TexFogReflect");
+    Light1TexFogReflectTech = mFX->GetTechniqueByName("Light1TexFogReflect");
+    Light2TexFogReflectTech = mFX->GetTechniqueByName("Light2TexFogReflect");
+    Light3TexFogReflectTech = mFX->GetTechniqueByName("Light3TexFogReflect");
+
+    Light0TexAlphaClipFogReflectTech = mFX->GetTechniqueByName("Light0TexAlphaClipFogReflect");
+    Light1TexAlphaClipFogReflectTech = mFX->GetTechniqueByName("Light1TexAlphaClipFogReflect");
+    Light2TexAlphaClipFogReflectTech = mFX->GetTechniqueByName("Light2TexAlphaClipFogReflect");
+    Light3TexAlphaClipFogReflectTech = mFX->GetTechniqueByName("Light3TexAlphaClipFogReflect");
+
     WorldViewProj     = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
     World             = mFX->GetVariableByName("gWorld")->AsMatrix();
     WorldInvTranspose = mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
@@ -70,6 +98,7 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
     Mat               = mFX->GetVariableByName("gMaterial");
     
     DiffuseMap        = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+    CubeMap           = mFX->GetVariableByName("gCubeMap")->AsShaderResource();
 }
 
 BasicEffect::~BasicEffect()
@@ -77,16 +106,34 @@ BasicEffect::~BasicEffect()
 }
 #pragma endregion
 
+#pragma region SkyEffect
+SkyEffect::SkyEffect(ID3D11Device* device, const std::wstring& filename)
+    : Effect(device, filename)
+{
+    SkyTech       = mFX->GetTechniqueByName("SkyTech");
+
+    WorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+
+    CubeMap       = mFX->GetVariableByName("gCubeMap")->AsShaderResource();
+}
+
+SkyEffect::~SkyEffect()
+{
+}
+#pragma endregion
+
 #pragma region Effects
 BasicEffect* Effects::BasicFX = 0;
-
+SkyEffect*   Effects::SkyFX = 0;
 void Effects::InitAll(ID3D11Device* device)
 {
     BasicFX = new BasicEffect(device, L"shaders/Basic.cso");
+    SkyFX = new SkyEffect(device, L"shaders/Sky.cso");
 }
 
 void Effects::DestroyAll()
 {
     SafeDelete(BasicFX);
+    SafeDelete(SkyFX);
 }
 #pragma endregion

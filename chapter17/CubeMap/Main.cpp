@@ -1,11 +1,11 @@
-#include "FirstPersonCamera.h"
+#include "CubeMap.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    FirstPersonCamera fpc(hInstance);
+    CubeMap cm(hInstance);
 
-    if (!fpc.Init())
+    if (!cm.Init())
         return 0;
 
-    return fpc.Run();
+    return cm.Run();
 }
