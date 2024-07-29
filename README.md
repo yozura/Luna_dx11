@@ -46,6 +46,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter16-picking.png](resources/chapter16/picking.PNG)
 ![chapter16-slaps.png](resources/chapter16/slaps.PNG)</details>
 
+> __[Chapter17. Cube Mapping](chapter17/)__<details><summary>Demo Pictures</summary>
+![chapter17-cubemap.png](resources/chapter17/cubemap.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
