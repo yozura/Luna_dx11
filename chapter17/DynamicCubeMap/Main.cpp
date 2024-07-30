@@ -1,11 +1,11 @@
-#include "CubeMap.h"
+#include "DynamicCubeMap.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    CubeMap cm(hInstance);
+    DynamicCubeMap dcm(hInstance);
 
-    if (!cm.Init())
+    if (!dcm.Init())
         return 0;
 
-    return cm.Run();
+    return dcm.Run();
 }

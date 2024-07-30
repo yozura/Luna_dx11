@@ -1,5 +1,5 @@
-#ifndef CUBE_MAP_H
-#define CUBE_MAP_H
+#ifndef DYNAMIC_CUBE_MAP_H
+#define DYNAMIC_CUBE_MAP_H
 
 #include "D3DApp.h"
 #include "GeometryGenerator.h"
@@ -10,11 +10,11 @@
 #include "Camera.h"
 #include "Sky.h"
 
-class CubeMap : public D3DApp
+class DynamicCubeMap : public D3DApp
 {
 public:
-    CubeMap(HINSTANCE hInstance);
-    ~CubeMap();
+    DynamicCubeMap(HINSTANCE hInstance);
+    ~DynamicCubeMap();
 
 	bool Init();
 	void OnResize();
@@ -26,6 +26,9 @@ public:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
+    void DrawScene(const Camera& camera, bool drawCenterSphere);
+    void BuildCubeFaceFrame(float x, float y, float z);
+    void BuildDynamicCubeMapView();
 	void BuildShapeGeometryBuffers();
 	void BuildSkullGeometryBuffers();
 
@@ -41,19 +44,29 @@ private:
     ID3D11ShaderResourceView* mFloorTexSRV;
     ID3D11ShaderResourceView* mStoneTexSRV;
     ID3D11ShaderResourceView* mBrickTexSRV;
+
+    ID3D11DepthStencilView*   mDynamicCubeMapDSV;
+    ID3D11RenderTargetView*   mDynamicCubeMapRTV[6];
+    ID3D11ShaderResourceView* mDynamicCubeMapSRV;
+    
+    D3D11_VIEWPORT mCubeMapViewport;
 	
+    static const int CubeMapSize = 256;
+
 	DirectionalLight mDirLights[3];
 	Material mGridMat;
 	Material mBoxMat;
 	Material mCylinderMat;
 	Material mSphereMat;
 	Material mSkullMat;
+    Material mCenterSphereMat;
 
 	DirectX::XMFLOAT4X4 mSphereWorld[10];
 	DirectX::XMFLOAT4X4 mCylinderWorld[10];
 	DirectX::XMFLOAT4X4 mBoxWorld;
 	DirectX::XMFLOAT4X4 mGridWorld;
 	DirectX::XMFLOAT4X4 mSkullWorld;
+	DirectX::XMFLOAT4X4 mCenterSphereWorld;
 
 	int mBoxVertexOffset;
 	int mGridVertexOffset;
@@ -69,14 +82,14 @@ private:
 	UINT mGridIndexCount;
 	UINT mSphereIndexCount;
 	UINT mCylinderIndexCount;
-
 	UINT mSkullIndexCount;
 
 	UINT mLightCount;
 
     Camera mCam;
+    Camera mCubeMapCamera[6];
 
 	POINT mLastMousePos;
 };
 
-#endif /* CUBE_MAP_H */
+#endif /* DYNAMIC_CUBE_MAP_H */
