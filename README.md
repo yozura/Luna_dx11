@@ -47,7 +47,8 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter16-slaps.png](resources/chapter16/slaps.PNG)</details>
 
 > __[Chapter17. Cube Mapping](chapter17/)__<details><summary>Demo Pictures</summary>
-![chapter17-cubemap.png](resources/chapter17/cubemap.PNG)</details>
+![chapter17-cubemap.png](resources/chapter17/cubemap.PNG)
+![chapter17-dynamiccubemap.png](resources/chapter17/dynamiccubemap.gif)</details>
 
 ## Diffrence from a book.
 
