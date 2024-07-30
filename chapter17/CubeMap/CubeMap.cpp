@@ -61,10 +61,10 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
     mCylinderMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
-    mSphereMat.Ambient = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
-    mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
-    mSphereMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
-    mSphereMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+    mSphereMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mSphereMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mSphereMat.Reflect = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 
     mBoxMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -74,7 +74,7 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mSkullMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mSkullMat.Reflect = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mSkullMat.Reflect = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 }
 
 CubeMap::~CubeMap()
@@ -101,7 +101,7 @@ bool CubeMap::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
-    mSky = new Sky(md3dDevice, L"textures/cloudycube1024.dds", 5000.0f);
+    mSky = new Sky(md3dDevice, L"textures/grasscube1024.dds", 5000.0f);
 
     ScratchImage floor;
     HR(LoadFromDDSFile(L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, floor));
@@ -223,24 +223,6 @@ void CubeMap::DrawScene()
     activeReflectTech->GetDesc(&techDesc);
     for (UINT p = 0; p < techDesc.Passes; ++p)
     {
-        // Sphere
-        for (UINT i = 0; i < 10; ++i)
-        {
-            world = XMLoadFloat4x4(&mSphereWorld[i]);
-            worldInvTranspose = MathHelper::InverseTranspose(world);
-            worldViewProj = world * view * proj;
-
-            Effects::BasicFX->SetWorld(world);
-            Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-            Effects::BasicFX->SetWorldViewProj(worldViewProj);
-            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-            Effects::BasicFX->SetMaterial(mSphereMat);
-            Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
-
-            activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-            md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
-        }
-
         // Box
         world = XMLoadFloat4x4(&mBoxWorld);
         worldInvTranspose = MathHelper::InverseTranspose(world);
@@ -272,6 +254,24 @@ void CubeMap::DrawScene()
 
             activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
+        }
+
+        // Sphere
+        for (UINT i = 0; i < 10; ++i)
+        {
+            world = XMLoadFloat4x4(&mSphereWorld[i]);
+            worldInvTranspose = MathHelper::InverseTranspose(world);
+            worldViewProj = world * view * proj;
+
+            Effects::BasicFX->SetWorld(world);
+            Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+            Effects::BasicFX->SetWorldViewProj(worldViewProj);
+            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+            Effects::BasicFX->SetMaterial(mSphereMat);
+            Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
+
+            activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
         }
     }
 
