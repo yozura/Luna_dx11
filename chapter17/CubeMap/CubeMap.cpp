@@ -59,7 +59,7 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mCylinderMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mCylinderMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mCylinderMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
     mSphereMat.Ambient = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
     mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
@@ -69,7 +69,7 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mBoxMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mBoxMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mBoxMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
     mSkullMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -217,39 +217,6 @@ void CubeMap::DrawScene()
 
         activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
-
-        // Box
-        world = XMLoadFloat4x4(&mBoxWorld);
-        worldInvTranspose = MathHelper::InverseTranspose(world);
-        worldViewProj = world * view * proj;
-
-        Effects::BasicFX->SetWorld(world);
-        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-        Effects::BasicFX->SetWorldViewProj(worldViewProj);
-        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-        Effects::BasicFX->SetMaterial(mBoxMat);
-        Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
-
-        activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-        md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
-
-        // Cylinders
-        for (UINT i = 0; i < 10; ++i)
-        {
-            world = XMLoadFloat4x4(&mCylinderWorld[i]);
-            worldInvTranspose = MathHelper::InverseTranspose(world);
-            worldViewProj = world * view * proj;
-
-            Effects::BasicFX->SetWorld(world);
-            Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
-            Effects::BasicFX->SetWorldViewProj(worldViewProj);
-            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
-            Effects::BasicFX->SetMaterial(mCylinderMat);
-            Effects::BasicFX->SetDiffuseMap(mBrickTexSRV);
-
-            activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-            md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
-        }
     }
 
     // Draw the sphere with cubemap reflection.
@@ -272,6 +239,39 @@ void CubeMap::DrawScene()
 
             activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
+        }
+
+        // Box
+        world = XMLoadFloat4x4(&mBoxWorld);
+        worldInvTranspose = MathHelper::InverseTranspose(world);
+        worldViewProj = world * view * proj;
+
+        Effects::BasicFX->SetWorld(world);
+        Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+        Effects::BasicFX->SetWorldViewProj(worldViewProj);
+        Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+        Effects::BasicFX->SetMaterial(mBoxMat);
+        Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
+
+        activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
+
+        // Cylinders
+        for (UINT i = 0; i < 10; ++i)
+        {
+            world = XMLoadFloat4x4(&mCylinderWorld[i]);
+            worldInvTranspose = MathHelper::InverseTranspose(world);
+            worldViewProj = world * view * proj;
+
+            Effects::BasicFX->SetWorld(world);
+            Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+            Effects::BasicFX->SetWorldViewProj(worldViewProj);
+            Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+            Effects::BasicFX->SetMaterial(mCylinderMat);
+            Effects::BasicFX->SetDiffuseMap(mBrickTexSRV);
+
+            activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
         }
     }
 
