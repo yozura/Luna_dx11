@@ -61,7 +61,7 @@ float4 PS(VertexOut pin,
           uniform bool gUseTexure,
           uniform bool gAlphaClip,
           uniform bool gFogEnabled,
-          uniform bool gReflectionEnabled) : SV_Target
+          uniform bool gRefractionEnabled) : SV_Target
 {
 	// Interpolating normal can unnormalize it, so normalize it.
     pin.NormalW = normalize(pin.NormalW);
@@ -118,12 +118,12 @@ float4 PS(VertexOut pin,
         litColor = texColor * (ambient + diffuse) + spec;
     }
     
-    if (gReflectionEnabled)
+    if (gRefractionEnabled)
     {
         float3 incident = -toEye;
-        float3 reflectionVector = reflect(incident, pin.NormalW);
-        float4 reflectionColor = gCubeMap.Sample(samAnisotropic, reflectionVector);
-        litColor += gMaterial.Reflect * reflectionColor;
+        float3 refractionVector = refract(incident, pin.NormalW, 0.95f);
+        float4 refractionColor = gCubeMap.Sample(samAnisotropic, refractionVector);
+        litColor += gMaterial.Reflect * refractionColor;
     }
 
 	//

@@ -59,22 +59,22 @@ CubeMap::CubeMap(HINSTANCE hInstance)
     mCylinderMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mCylinderMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mCylinderMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
-    mSphereMat.Ambient = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
-    mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
-    mSphereMat.Specular = XMFLOAT4(0.9f, 0.9f, 0.9f, 16.0f);
-    mSphereMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+    mSphereMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mSphereMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+    mSphereMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+    mSphereMat.Reflect = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 
     mBoxMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     mBoxMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mBoxMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    mBoxMat.Reflect = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
     mSkullMat.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
     mSkullMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
-    mSkullMat.Reflect = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    mSkullMat.Reflect = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 }
 
 CubeMap::~CubeMap()
@@ -101,7 +101,7 @@ bool CubeMap::Init()
     Effects::InitAll(md3dDevice);
     InputLayouts::InitAll(md3dDevice);
 
-    mSky = new Sky(md3dDevice, L"textures/cloudycube1024.dds", 5000.0f);
+    mSky = new Sky(md3dDevice, L"textures/grasscube1024.dds", 5000.0f);
 
     ScratchImage floor;
     HR(LoadFromDDSFile(L"textures/floor.dds", DDS_FLAGS_NONE, nullptr, floor));
@@ -217,7 +217,12 @@ void CubeMap::DrawScene()
 
         activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
+    }
 
+    // Draw the sphere with cubemap reflection.
+    activeReflectTech->GetDesc(&techDesc);
+    for (UINT p = 0; p < techDesc.Passes; ++p)
+    {
         // Box
         world = XMLoadFloat4x4(&mBoxWorld);
         worldInvTranspose = MathHelper::InverseTranspose(world);
@@ -230,7 +235,7 @@ void CubeMap::DrawScene()
         Effects::BasicFX->SetMaterial(mBoxMat);
         Effects::BasicFX->SetDiffuseMap(mStoneTexSRV);
 
-        activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+        activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
         md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
 
         // Cylinders
@@ -247,15 +252,10 @@ void CubeMap::DrawScene()
             Effects::BasicFX->SetMaterial(mCylinderMat);
             Effects::BasicFX->SetDiffuseMap(mBrickTexSRV);
 
-            activeTexTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+            activeReflectTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
             md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
         }
-    }
 
-    // Draw the sphere with cubemap reflection.
-    activeReflectTech->GetDesc(&techDesc);
-    for (UINT p = 0; p < techDesc.Passes; ++p)
-    {
         // Sphere
         for (UINT i = 0; i < 10; ++i)
         {
