@@ -50,6 +50,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 ![chapter17-cubemap.png](resources/chapter17/cubemap.PNG)
 ![chapter17-dynamiccubemap.png](resources/chapter17/dynamiccubemap.gif)</details>
 
+> __[Chapter18. Normal Mapping and Displacement Mapping](chapter18/)__<details><summary>Demo Pictures</summary>
+![chapter18-nad.png](resources/chapter18/nad.gif)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
