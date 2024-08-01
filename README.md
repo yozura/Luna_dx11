@@ -53,6 +53,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter18. Normal Mapping and Displacement Mapping](chapter18/)__<details><summary>Demo Pictures</summary>
 ![chapter18-nad.png](resources/chapter18/nad.gif)</details>
 
+> __[Chapter19. Terrain Rendering](chapter19/)__<details><summary>Demo Pictures</summary>
+![chapter19-terrain.png](resources/chapter19/terrain.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`

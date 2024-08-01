@@ -1,11 +1,11 @@
-#include "CubeMap.h"
+#include "TerrainApp.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    CubeMap cm(hInstance);
+    TerrainApp ta(hInstance);
 
-    if (!cm.Init())
+    if (!ta.Init())
         return 0;
 
-    return cm.Run();
+    return ta.Run();
 }

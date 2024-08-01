@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Sky.h"
 #include "Terrain.h"
+#include "RenderStates.h"
 
 class TerrainApp : public D3DApp
 {
