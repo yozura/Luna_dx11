@@ -44,7 +44,7 @@ private:
 
     DirectX::XMFLOAT3 mEyePosW;
     DirectX::XMFLOAT3 mEmitPosW;
-    DirectX::XMFLOAT3 mEmitDir;
+    DirectX::XMFLOAT3 mEmitDirW;
 
     ParticleEffect* mFX;
 

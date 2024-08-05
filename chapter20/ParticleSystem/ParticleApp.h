@@ -11,6 +11,7 @@
 #include "Sky.h"
 #include "Terrain.h"
 #include "RenderStates.h"
+#include "ParticleSystem.h"
 
 class ParticleApp : public D3DApp
 {
@@ -30,6 +31,13 @@ public:
 private:
     Sky* mSky;
     Terrain mTerrain;
+
+    ID3D11ShaderResourceView* mFlareTexSRV;
+    ID3D11ShaderResourceView* mRainTexSRV;
+    ID3D11ShaderResourceView* mRandomTexSRV;
+
+    ParticleSystem mFire;
+    ParticleSystem mRain;
 
     DirectionalLight mDirLights[3];
 

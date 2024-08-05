@@ -1,11 +1,11 @@
-#include "TerrainApp.h"
+#include "ParticleApp.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int showCmd)
 {
-    TerrainApp ta(hInstance);
+    ParticleApp pa(hInstance);
 
-    if (!ta.Init())
+    if (!pa.Init())
         return 0;
 
-    return ta.Run();
+    return pa.Run();
 }

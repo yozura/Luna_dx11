@@ -3,9 +3,11 @@
 using namespace DirectX;
 
 ParticleApp::ParticleApp(HINSTANCE hInstance)
-    : D3DApp(hInstance), mSky(0), mWalkCamMode(false)
+    : D3DApp(hInstance), mSky(0)
+    , mRandomTexSRV(0), mFlareTexSRV(0), mRainTexSRV(0)
+    , mWalkCamMode(false)
 {
-    mMainWndCaption = L"Terrain";
+    mMainWndCaption = L"ParticleSystem";
     mEnable4xMsaa = false;
 
     mLastMousePos.x = 0;
@@ -32,6 +34,10 @@ ParticleApp::ParticleApp(HINSTANCE hInstance)
 ParticleApp::~ParticleApp()
 {
     md3dImmediateContext->ClearState();
+
+    ReleaseCOM(mFlareTexSRV);
+    ReleaseCOM(mRainTexSRV);
+    ReleaseCOM(mRandomTexSRV);
 
     SafeDelete(mSky);
 
@@ -66,6 +72,20 @@ bool ParticleApp::Init()
     tii.CellSpacing = 0.5f;
 
     mTerrain.Init(md3dDevice, md3dImmediateContext, tii);
+
+    mRandomTexSRV = D3DHelper::CreateRandomTexture1DSRV(md3dDevice);
+
+    std::vector<std::wstring> flares;
+    flares.push_back(L"textures\\flare0.dds");
+    mFlareTexSRV = D3DHelper::CreateTexture2DArraySRV(md3dDevice, md3dImmediateContext, flares, DXGI_FORMAT_R8G8B8A8_UNORM);
+    mFire.Init(md3dDevice, Effects::FireFX, mFlareTexSRV, mRandomTexSRV, 500);
+    mFire.SetEmitPos(XMFLOAT3(0.0f, 1.0f, 120.0f));
+
+    std::vector<std::wstring> raindrops;
+    raindrops.push_back(L"textures\\raindrop.dds");
+    mRainTexSRV = D3DHelper::CreateTexture2DArraySRV(md3dDevice, md3dImmediateContext, raindrops, DXGI_FORMAT_R8G8B8A8_UNORM);
+    mRain.Init(md3dDevice, Effects::RainFX, mRainTexSRV, mRandomTexSRV, 10000);
+
     return true;
 }
 
@@ -102,6 +122,15 @@ void ParticleApp::UpdateScene(float dt)
         mCam.SetPosition(camPos.x, y + 2.0f, camPos.z);
     }
 
+    if (GetAsyncKeyState('R') & 0x8000)
+    {
+        mFire.Reset();
+        mRain.Reset();
+    }
+
+    mFire.Update(dt, mTimer.TotalTime());
+    mRain.Update(dt, mTimer.TotalTime());
+
     mCam.UpdateViewMatrix();
 }
 
@@ -124,9 +153,20 @@ void ParticleApp::DrawScene()
 
     mSky->Draw(md3dImmediateContext, mCam);
 
-    // restore default states, as the SkyFX changes them in the effect file.
+    // Draw particle systems last so it is blended with scene.
+    mFire.SetEyePos(mCam.GetPosition());
+    mFire.Draw(md3dImmediateContext, mCam);
+    md3dImmediateContext->RSSetState(0);
+    md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+    
+    mRain.SetEyePos(mCam.GetPosition());
+    mRain.SetEmitPos(mCam.GetPosition());
+    mRain.Draw(md3dImmediateContext, mCam);
+    
+    // restore default state.
     md3dImmediateContext->RSSetState(0);
     md3dImmediateContext->OMSetDepthStencilState(0, 0);
+    md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 
     HR(mSwapChain->Present(0, 0));
 }

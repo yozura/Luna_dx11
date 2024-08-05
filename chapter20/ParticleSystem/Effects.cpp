@@ -158,16 +158,44 @@ TerrainEffect::TerrainEffect(ID3D11Device* device, const std::wstring& filename)
 TerrainEffect::~TerrainEffect()
 {
 }
+#pragma endregion
+
+#pragma region ParticleEffect
+ParticleEffect::ParticleEffect(ID3D11Device* device, const std::wstring& filename)
+    : Effect(device, filename)
+{
+    StreamOutTech = mFX->GetTechniqueByName("StreamOutTech");
+    DrawTech = mFX->GetTechniqueByName("DrawTech");
+
+    ViewProj = mFX->GetVariableByName("gViewProj")->AsMatrix();
+    GameTime = mFX->GetVariableByName("gGameTime")->AsScalar();
+    TimeStep = mFX->GetVariableByName("gTimeStep")->AsScalar();
+    EyePosW = mFX->GetVariableByName("gEyePosW")->AsVector();
+    EmitPosW = mFX->GetVariableByName("gEmitPosW")->AsVector();
+    EmitDirW = mFX->GetVariableByName("gEmitDirW")->AsVector();
+    TexArray = mFX->GetVariableByName("gTexArray")->AsShaderResource();
+    RandomTex = mFX->GetVariableByName("gRandomTex")->AsShaderResource();
+}
+
+ParticleEffect::~ParticleEffect()
+{
+}
+#pragma endregion
+
 #pragma region Effects
-BasicEffect*   Effects::BasicFX = 0;
-SkyEffect*     Effects::SkyFX = 0;
-TerrainEffect* Effects::TerrainFX = 0;
+BasicEffect*    Effects::BasicFX = 0;
+SkyEffect*      Effects::SkyFX = 0;
+TerrainEffect*  Effects::TerrainFX = 0;
+ParticleEffect* Effects::FireFX = 0;
+ParticleEffect* Effects::RainFX = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
     BasicFX = new BasicEffect(device, L"shaders/Basic.cso");
     SkyFX = new SkyEffect(device, L"shaders/Sky.cso");
     TerrainFX = new TerrainEffect(device, L"shaders/Terrain.cso");
+    FireFX = new ParticleEffect(device, L"shaders/Fire.cso");
+    RainFX = new ParticleEffect(device, L"shaders/Rain.cso");
 }
 
 void Effects::DestroyAll()
@@ -175,5 +203,7 @@ void Effects::DestroyAll()
     SafeDelete(BasicFX);
     SafeDelete(SkyFX);
     SafeDelete(TerrainFX);
+    SafeDelete(FireFX);
+    SafeDelete(RainFX);
 }
 #pragma endregion
