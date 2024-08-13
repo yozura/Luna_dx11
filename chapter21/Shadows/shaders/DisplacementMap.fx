@@ -23,9 +23,11 @@ cbuffer cbPerObject
     float4x4 gViewProj;
     float4x4 gWorldViewProj;
     float4x4 gTexTransform;
+    float4x4 gShadowTransform;
     Material gMaterial;
 };
 
+Texture2D gShadowMap;
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;
 TextureCube gCubeMap;
@@ -36,6 +38,17 @@ SamplerState samLinear
 
     AddressU = WRAP;
     AddressV = WRAP;
+};
+
+SamplerComparisonState samShadow
+{
+    Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+    AddressU = BORDER;
+    AddressV = BORDER;
+    AddressW = BORDER;
+    BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    ComparisonFunc = LESS;
 };
 
 struct VertexIn
@@ -121,11 +134,12 @@ HullOut HS(InputPatch<VertexOut, 3> p,
 
 struct DomainOut
 {
-    float4 PosH     : SV_POSITION;
-    float3 PosW     : POSITION;
-    float3 NormalW  : NORMAL;
-    float3 TangentW : TANGENT;
-    float2 Tex      : TEXCOORD;
+    float4 PosH       : SV_POSITION;
+    float3 PosW       : POSITION;
+    float3 NormalW    : NORMAL;
+    float3 TangentW   : TANGENT;
+    float2 Tex        : TEXCOORD0;
+    float4 ShadowPosH : TEXCOORD1;
 };
 
 [domain("tri")]
@@ -147,6 +161,8 @@ DomainOut DS(PatchTess patchTess,
     float h = gNormalMap.SampleLevel(samLinear, dout.Tex, mipLevel).a;
     
     dout.PosW += (gHeightScale * (h - 1.0f)) * dout.NormalW;
+    
+    dout.ShadowPosH = mul(float4(dout.PosW, 1.0f), gShadowTransform);
     
     dout.PosH = mul(float4(dout.PosW, 1.0f), gViewProj);
     
@@ -189,6 +205,9 @@ float4 PS(DomainOut pin,
         float4 diffuse  = float4(0, 0, 0, 0);
         float4 specular = float4(0, 0, 0, 0);
         
+        float3 shadow = float3(1.0f, 1.0f, 1.0f);
+        shadow[0] = CalcShadowFactor(samShadow, gShadowMap, pin.ShadowPosH);
+
         [unroll]
         for (int i = 0; i < gLightCount; ++i)
         {
@@ -196,8 +215,8 @@ float4 PS(DomainOut pin,
             ComputeDirectionalLight(gMaterial, gDirLights[i], bumpedNormalW, toEye, A, D, S);
             
             ambient  += A;
-            diffuse  += D;
-            specular += S;
+            diffuse  += shadow[i] * D;
+            specular += shadow[i] * S;
         }
         
         litColor = texColor * (ambient + diffuse) + specular;
