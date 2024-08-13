@@ -59,6 +59,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter20. Particle System And Stream-Out](chapter20/)__<details><summary>Demo Pictures</summary>
 ![chapter20-ps.png](resources/chapter20/ps.PNG)</details>
 
+> __[Chapter21. Shadow Mapping](chapter21/)__<details><summary>Demo Pictures</summary>
+![chapter21-shadow.png](resources/chapter21/shadow.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
