@@ -62,6 +62,9 @@ I am uploading the learning outcomes of each chapter after reading [Introduction
 > __[Chapter21. Shadow Mapping](chapter21/)__<details><summary>Demo Pictures</summary>
 ![chapter21-shadow.png](resources/chapter21/shadow.PNG)</details>
 
+> __[Chapter23. Mesh](chapter23/)__<details><summary>Demo Pictures</summary>
+![chapter23-mesh.png](resources/chapter23/mesh.PNG)</details>
+
 ## Diffrence from a book.
 
 ### 1. `Effects11.lib`
